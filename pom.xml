@@ -36,6 +36,13 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/org.deeplearning4j/dl4j-spark-nlp -->
+        <dependency>
+            <groupId>org.deeplearning4j</groupId>
+            <artifactId>dl4j-spark-nlp_2.11</artifactId>
+            <version>1.0.0-beta_spark_2</version>
+        </dependency>
+
     </dependencies>
 
 </project>
