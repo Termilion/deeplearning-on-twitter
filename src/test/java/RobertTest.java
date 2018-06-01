@@ -11,15 +11,15 @@ public class RobertTest {
         try {
             BufferedReader input = new BufferedReader(new FileReader("/home/kilt/BigData-Prak/Deep-Walk-4J/src/main/resources/12831.feat"));
             String line = "";
-            HashMap<Integer, Integer> indexMapping = new HashMap<Integer, Integer>();
-            ArrayList<Vertex> vertices = new ArrayList<Vertex>();
-            int i = 0;
+            HashMap<Integer, Integer> indexMapping = new HashMap();
+            ArrayList<Vertex> vertices = new ArrayList();
+            int index = 0;
             while((line = input.readLine()) != null) {
                 int label = Integer.parseInt(line.split(" ")[0]);
-                Vertex v = new Vertex(i, label);
+                Vertex v = new Vertex(index, label);
                 vertices.add(v);
-                indexMapping.put(label, i);
-                i++;
+                indexMapping.put(label, index);
+                index++;
             }
             System.out.println("Vertices loaded.");
             Graph g = new Graph(vertices);
@@ -35,6 +35,7 @@ public class RobertTest {
                 g.addEdge(e);
             }
             System.out.println("Edges loaded.");
+
 
         } catch (IOException e) {
             e.printStackTrace();
