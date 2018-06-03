@@ -171,8 +171,13 @@ public class Test {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
         }
+    }
+
+    @org.junit.Test
+    public void spilter() {
+        String test = "a b c";
+        System.out.println(Arrays.asList(test.split(" ",2)));
     }
 }
 
