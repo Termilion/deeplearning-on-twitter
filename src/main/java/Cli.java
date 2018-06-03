@@ -5,6 +5,13 @@ import org.deeplearning4j.graph.iterator.GraphWalkIterator;
 import org.deeplearning4j.graph.iterator.RandomWalkIterator;
 import org.deeplearning4j.graph.models.deepwalk.DeepWalk;
 import org.deeplearning4j.graph.models.loader.GraphVectorSerializer;
+import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer;
+import org.deeplearning4j.models.paragraphvectors.ParagraphVectors;
+import org.deeplearning4j.text.sentenceiterator.labelaware.LabelAwareFileSentenceIterator;
+import org.deeplearning4j.text.sentenceiterator.labelaware.LabelAwareSentenceIterator;
+import org.deeplearning4j.text.tokenization.tokenizerfactory.DefaultTokenizerFactory;
+import org.deeplearning4j.text.tokenization.tokenizerfactory.TokenizerFactory;
+import org.nd4j.linalg.io.ClassPathResource;
 
 import java.io.File;
 import java.io.IOException;
@@ -54,9 +61,12 @@ public class Cli{
         }
 
         public static void main(String[] args){
-            int walkLength = 8;
-            int windowSize = 4;
-            int vectorSize = 10;
+            int dw_walkLength = 8;
+            int dw_windowSize = 4;
+            int dw_vectorSize = 10;
+
+            int pv_layerSize = 8;
+            int pv_windowSize = 4;
 
             CommandLine commandLine = Cli.getCommnadLine(args);
 
@@ -69,6 +79,7 @@ public class Cli{
                 System.exit(0);
             }
 
+            // pre-processing
             PreProcessor preProcessor = new PreProcessor(twitterDir,outDir,edgesFile);
             GraphGenerator gem = new GraphGenerator(edgesFile,preProcessor.getVerices(),preProcessor.getLabelToIdMap());
             Graph<String, String> graph = gem.getGraph();
@@ -77,13 +88,30 @@ public class Cli{
                 if(graph.getVertexDegree(ver.vertexID()) == 0) i++;
             }
 
-            DeepWalk deepWalk = new DeepWalk.Builder().windowSize(windowSize).vectorSize(vectorSize).learningRate(0.001).build();
+            // walking deep
+            DeepWalk deepWalk = new DeepWalk.Builder().windowSize(dw_windowSize).vectorSize(dw_vectorSize).learningRate(0.001).build();
             deepWalk.initialize(graph);
-
-            deepWalk.fit(graph, walkLength);
+            deepWalk.fit(graph, dw_walkLength);
 
             try {
-                GraphVectorSerializer.writeGraphVectors(deepWalk, outDir + "deepWalk-" + walkLength + "-" + windowSize + "-" + vectorSize + ".dw");
+                TokenizerFactory tokenizer = new DefaultTokenizerFactory();
+                CustomLabelAwareFileSentenceIterator iterator =
+                        new CustomLabelAwareFileSentenceIterator(new File(outDir + "preVectors/"));
+
+                // load paragraph vectors
+                ParagraphVectors paraVec = new ParagraphVectors.Builder()
+                    .layerSize(pv_layerSize)
+                    .minWordFrequency(1)
+                    .windowSize(pv_windowSize)
+                    .tokenizerFactory(tokenizer)
+                    .iterate(iterator)
+                    .build();
+
+                paraVec.fit();
+
+                // persist
+                WordVectorSerializer.writeParagraphVectors(paraVec, outDir + "paraVec-" + pv_layerSize + "-" + pv_windowSize + ".pv");
+                GraphVectorSerializer.writeGraphVectors(deepWalk, outDir + "deepWalk-" + dw_walkLength + "-" + dw_windowSize + "-" + dw_vectorSize + ".dw");
             } catch(IOException e) {
                 e.printStackTrace();
             }
