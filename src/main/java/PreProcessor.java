@@ -75,11 +75,12 @@ public class PreProcessor {
                     String[] splitted = line.split(" ");
                     String nodeId = splitted[0];
                     int idx = 0;
-                    boolean firstinit = true;
+                    boolean firstinit = !combinedReducedFeatsMap.containsKey(nodeId);
                     for ( int i = 1; i < splitted.length; i++) {
-                        if( firstinit == false && splitted[i].equals("1")) {
+                        if( splitted[i].equals("1")) {
                             if(firstinit) {
                                 combinedReducedFeatsMap.put(nodeId,new HashSet<>( Arrays.asList(featnames.get(idx))));
+                                firstinit = false;
                             } else {
                                 combinedReducedFeatsMap.get(nodeId).add(featnames.get(idx));
                             }
