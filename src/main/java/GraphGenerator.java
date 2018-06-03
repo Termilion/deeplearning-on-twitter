@@ -18,10 +18,11 @@ public class GraphGenerator {
     GraphGenerator(File edges, List<Vertex<String>> vertices, Map<String,Integer> labelToIdMap) {
         log.info("loading graph");
 
-        Graph<String, String> graph = new Graph<>(vertices);
+//        Graph<String, String>
+        graph = new Graph<>(vertices);
         log.info("initialized graph with "+vertices.size()+" vertices");
 
-        long edegesCount = 0;
+        long edgesCount = 0;
         try (BufferedReader br = new BufferedReader(new FileReader(edges))) {
             String line;
             while ((line = br.readLine()) != null) {
@@ -31,13 +32,17 @@ public class GraphGenerator {
                 //log.info("add edge ( "+from+" --> "+to+" )");
                 graph.addEdge(new Edge<>(labelToIdMap.get(from),
                         labelToIdMap.get(to),
-                        from + "-->" + to, true));
-                edegesCount++;
+                        /**
+                         * TODO directed: true
+                         * so maybe remove all degree null vertices
+                         */
+                        from + "-->" + to, false));
+                edgesCount++;
             }
         } catch ( Exception e ) {
             e.printStackTrace();
         }
-        log.info("initialized graph with "+edegesCount+" edges");
+        log.info("initialized graph with "+edgesCount+" edges");
     }
 
     /**
