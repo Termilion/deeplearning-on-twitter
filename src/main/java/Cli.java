@@ -1,14 +1,13 @@
 import org.apache.commons.cli.*;
-import org.deeplearning4j.graph.data.GraphLoader;
+import org.deeplearning4j.graph.api.Vertex;
 import org.deeplearning4j.graph.graph.Graph;
+import org.deeplearning4j.graph.iterator.GraphWalkIterator;
+import org.deeplearning4j.graph.iterator.RandomWalkIterator;
 import org.deeplearning4j.graph.models.deepwalk.DeepWalk;
+import org.deeplearning4j.graph.models.loader.GraphVectorSerializer;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.logging.Logger;
 
 public class Cli{
 
@@ -55,6 +54,9 @@ public class Cli{
         }
 
         public static void main(String[] args){
+            int walkLength = 8;
+            int windowSize = 4;
+            int vectorSize = 10;
 
             CommandLine commandLine = Cli.getCommnadLine(args);
 
@@ -68,6 +70,22 @@ public class Cli{
             }
 
             PreProcessor preProcessor = new PreProcessor(twitterDir,outDir,edgesFile);
-            new GraphGenerator(edgesFile,preProcessor.getVerices(),preProcessor.getLabelToIdMap());
+            GraphGenerator gem = new GraphGenerator(edgesFile,preProcessor.getVerices(),preProcessor.getLabelToIdMap());
+            Graph<String, String> graph = gem.getGraph();
+            int i = 0;
+            for( Vertex ver : graph.getVertices(0,graph.numVertices()-1)) {
+                if(graph.getVertexDegree(ver.vertexID()) == 0) i++;
+            }
+
+            DeepWalk deepWalk = new DeepWalk.Builder().windowSize(windowSize).vectorSize(vectorSize).learningRate(0.001).build();
+            deepWalk.initialize(graph);
+
+            deepWalk.fit(graph, walkLength);
+
+            try {
+                GraphVectorSerializer.writeGraphVectors(deepWalk, outDir + "deepWalk-" + walkLength + "-" + windowSize + "-" + vectorSize + ".dw");
+            } catch(IOException e) {
+                e.printStackTrace();
+            }
         }
 }

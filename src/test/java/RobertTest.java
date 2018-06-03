@@ -1,6 +1,12 @@
 import org.deeplearning4j.graph.api.Edge;
+import org.deeplearning4j.graph.api.IGraph;
 import org.deeplearning4j.graph.api.Vertex;
 import org.deeplearning4j.graph.graph.Graph;
+import org.deeplearning4j.graph.models.GraphVectors;
+import org.deeplearning4j.graph.models.deepwalk.DeepWalk;
+import org.deeplearning4j.graph.models.embeddings.GraphVectorsImpl;
+import org.deeplearning4j.graph.models.loader.GraphVectorSerializer;
+import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer;
 import org.deeplearning4j.models.paragraphvectors.ParagraphVectors;
 import org.deeplearning4j.text.sentenceiterator.labelaware.LabelAwareFileSentenceIterator;
 import org.deeplearning4j.text.sentenceiterator.labelaware.LabelAwareSentenceIterator;
@@ -19,6 +25,7 @@ public class RobertTest {
 
     public static void main(String[] args) {
         try {
+            //Load Vertices
             BufferedReader input = new BufferedReader(new FileReader("/home/kilt/BigData-Prak/Deep-Walk-4J/src/test/resources/12831.feat"));
             String line = "";
             HashMap<Integer, Integer> indexMapping = new HashMap();
@@ -32,7 +39,11 @@ public class RobertTest {
                 index++;
             }
             System.out.println("Vertices loaded.");
+
+            //Init Graph
             Graph g = new Graph(vertices);
+
+            //Load Edges
             input = new BufferedReader(new FileReader("/home/kilt/BigData-Prak/Deep-Walk-4J/src/test/resources/12831.edges"));
             int j = 0;
             while((line = input.readLine()) != null) {
@@ -45,6 +56,8 @@ public class RobertTest {
                 g.addEdge(e);
             }
             System.out.println("Edges loaded.");
+
+            //Load Features
             input = new BufferedReader(new FileReader("/home/kilt/BigData-Prak/Deep-Walk-4J/src/test/resources/12831.featnames"));
             ArrayList<String> labels = new ArrayList();
             while((line = input.readLine()) != null) {
@@ -57,9 +70,26 @@ public class RobertTest {
 
             ParagraphVectors vec = new ParagraphVectors.Builder()
                     .minWordFrequency(1).labels(labels)
-                    .layerSize(100)
+                    .layerSize(10)
                     .stopWords(new ArrayList<String>())
                     .windowSize(5).iterate(iter).tokenizerFactory(tok).build();
+
+            vec.fit();
+
+            DeepWalk d = new DeepWalk.Builder().vectorSize(20).windowSize(10).build();
+            d.initialize(g);
+            d.fit(g, 0);
+
+            //Persistierung
+            File f = new File("test.graph");
+            WordVectorSerializer.writeParagraphVectors(vec, "test.pv");
+            GraphVectorSerializer.writeGraphVectors(d, f.getPath());
+
+            ParagraphVectors pv = WordVectorSerializer.readParagraphVectors("test.pv");
+            GraphVectorsImpl dw = (GraphVectorsImpl) GraphVectorSerializer.loadTxtVectors(f);
+
+
+
         } catch (IOException e) {
             e.printStackTrace();
         }
