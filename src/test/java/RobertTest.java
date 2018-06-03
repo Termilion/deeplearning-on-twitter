@@ -1,15 +1,25 @@
 import org.deeplearning4j.graph.api.Edge;
 import org.deeplearning4j.graph.api.Vertex;
 import org.deeplearning4j.graph.graph.Graph;
+import org.deeplearning4j.models.paragraphvectors.ParagraphVectors;
+import org.deeplearning4j.text.sentenceiterator.labelaware.LabelAwareFileSentenceIterator;
+import org.deeplearning4j.text.sentenceiterator.labelaware.LabelAwareSentenceIterator;
+import org.deeplearning4j.text.tokenization.tokenizerfactory.DefaultTokenizerFactory;
+import org.deeplearning4j.text.tokenization.tokenizerfactory.TokenizerFactory;
+import org.nd4j.linalg.io.ClassPathResource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 public class RobertTest {
+    private static final Logger log = LoggerFactory.getLogger(RobertTest.class);
+
     public static void main(String[] args) {
         try {
-            BufferedReader input = new BufferedReader(new FileReader("/home/kilt/BigData-Prak/Deep-Walk-4J/src/main/resources/12831.feat"));
+            BufferedReader input = new BufferedReader(new FileReader("/home/kilt/BigData-Prak/Deep-Walk-4J/src/test/resources/12831.feat"));
             String line = "";
             HashMap<Integer, Integer> indexMapping = new HashMap();
             ArrayList<Vertex> vertices = new ArrayList();
@@ -23,7 +33,7 @@ public class RobertTest {
             }
             System.out.println("Vertices loaded.");
             Graph g = new Graph(vertices);
-            input = new BufferedReader(new FileReader("/home/kilt/BigData-Prak/Deep-Walk-4J/src/main/resources/12831.edges"));
+            input = new BufferedReader(new FileReader("/home/kilt/BigData-Prak/Deep-Walk-4J/src/test/resources/12831.edges"));
             int j = 0;
             while((line = input.readLine()) != null) {
                 String[] split = line.split(" ");
@@ -35,8 +45,21 @@ public class RobertTest {
                 g.addEdge(e);
             }
             System.out.println("Edges loaded.");
+            input = new BufferedReader(new FileReader("/home/kilt/BigData-Prak/Deep-Walk-4J/src/test/resources/12831.featnames"));
+            ArrayList<String> labels = new ArrayList();
+            while((line = input.readLine()) != null) {
+                labels.add(line.split(" ")[1]);
+            }
+            ClassPathResource res = new ClassPathResource("/12831.feat");
+            File file = res.getFile();
+            LabelAwareSentenceIterator iter = new LabelAwareFileSentenceIterator(file);
+            TokenizerFactory tok = new DefaultTokenizerFactory();
 
-
+            ParagraphVectors vec = new ParagraphVectors.Builder()
+                    .minWordFrequency(1).labels(labels)
+                    .layerSize(100)
+                    .stopWords(new ArrayList<String>())
+                    .windowSize(5).iterate(iter).tokenizerFactory(tok).build();
         } catch (IOException e) {
             e.printStackTrace();
         }
