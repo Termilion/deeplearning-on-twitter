@@ -1,17 +1,13 @@
 import org.apache.commons.cli.*;
 import org.deeplearning4j.graph.api.Vertex;
 import org.deeplearning4j.graph.graph.Graph;
-import org.deeplearning4j.graph.iterator.GraphWalkIterator;
-import org.deeplearning4j.graph.iterator.RandomWalkIterator;
+import org.deeplearning4j.graph.models.GraphVectors;
 import org.deeplearning4j.graph.models.deepwalk.DeepWalk;
 import org.deeplearning4j.graph.models.loader.GraphVectorSerializer;
 import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer;
 import org.deeplearning4j.models.paragraphvectors.ParagraphVectors;
-import org.deeplearning4j.text.sentenceiterator.labelaware.LabelAwareFileSentenceIterator;
-import org.deeplearning4j.text.sentenceiterator.labelaware.LabelAwareSentenceIterator;
 import org.deeplearning4j.text.tokenization.tokenizerfactory.DefaultTokenizerFactory;
 import org.deeplearning4j.text.tokenization.tokenizerfactory.TokenizerFactory;
-import org.nd4j.linalg.io.ClassPathResource;
 
 import java.io.File;
 import java.io.IOException;
@@ -116,4 +112,12 @@ public class Cli{
                 e.printStackTrace();
             }
         }
+    public ParagraphVectors loadVector(String path) throws IOException {
+        return WordVectorSerializer.readParagraphVectors(path);
+    }
+
+    public GraphVectors loadDeepWalk(String path) throws IOException {
+        return GraphVectorSerializer.loadTxtVectors(new File(path));
+    }
+
 }
