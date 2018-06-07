@@ -15,95 +15,99 @@ public class PreProcessor {
     Map<String, Set<String>> combinedReducedFeatsMap = new HashMap();
 
     PreProcessor(String in, String out, File edges) {
-        log.info("pre processing data");
-        File inFolder = new File(in);
-        String[] egofeatFiles = inFolder.list(new FilenameFilter() {
-            @Override
-            public boolean accept(File file, String s) {
-                return s.endsWith(".egofeat");
-            }
-        });
-        log.info("find egofeats");
-
-        File featDir = new File(out+"preVectors/");
-        if (false == featDir.exists() && false == featDir.mkdirs()) {
-            System.err.println("Was not able to create directories: " + featDir);
-        }
-
-        for(String egofeatFile : egofeatFiles) {
-
-            String ego = egofeatFile.substring(0,egofeatFile.indexOf("."));
-            log.info("doing egofeat "+ego);
-
-            List<String> featnames = new ArrayList<>();
-            try (BufferedReader br = new BufferedReader(new FileReader(in+ego+".featnames"))) {
-                String line;
-                while ((line = br.readLine()) != null) {
-                    featnames.add(line.split(" ")[1]);
+        if( !new File(out+"preVectors/").exists()) {
+            log.info("pre processing data");
+            File inFolder = new File(in);
+            String[] egofeatFiles = inFolder.list(new FilenameFilter() {
+                @Override
+                public boolean accept(File file, String s) {
+                    return s.endsWith(".egofeat");
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            log.info("loaded featnames for "+ego);
+            });
+            log.info("find egofeats");
 
-            // egofeat file
-            List<String> reducedEgoFeats = new ArrayList<>();
-            try (BufferedReader br = new BufferedReader(new FileReader(in+ego+".egofeat"))) {
-                String line;
-                int idx = 0;
-                while ((line = br.readLine()) != null) {
-                    for(String currentFeat : line.split(" ")) {
-                        if( currentFeat.equals("1")) {
-                            reducedEgoFeats.add(featnames.get(idx));
-                        }
-                        idx++;
+            File featDir = new File(out + "preVectors/");
+            if (false == featDir.exists() && false == featDir.mkdirs()) {
+                System.err.println("Was not able to create directories: " + featDir);
+            }
+
+            for (String egofeatFile : egofeatFiles) {
+
+                String ego = egofeatFile.substring(0, egofeatFile.indexOf("."));
+                log.info("doing egofeat " + ego);
+
+                List<String> featnames = new ArrayList<>();
+                try (BufferedReader br = new BufferedReader(new FileReader(in + ego + ".featnames"))) {
+                    String line;
+                    while ((line = br.readLine()) != null) {
+                        featnames.add(line.split(" ")[1]);
                     }
-                    if( combinedReducedFeatsMap.containsKey(ego) ) {
-                        combinedReducedFeatsMap.get(ego).addAll(reducedEgoFeats);
-                    } else {
-                        combinedReducedFeatsMap.put(ego, new HashSet<>(reducedEgoFeats));
-                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+                log.info("loaded featnames for " + ego);
 
-            // feat file
-            try (BufferedReader br = new BufferedReader(new FileReader(in+ego+".feat"))) {
-                String line;
-                while ((line = br.readLine()) != null) {
-                    String[] splitted = line.split(" ");
-                    String nodeId = splitted[0];
+                // egofeat file
+                List<String> reducedEgoFeats = new ArrayList<>();
+                try (BufferedReader br = new BufferedReader(new FileReader(in + ego + ".egofeat"))) {
+                    String line;
                     int idx = 0;
-                    boolean firstinit = !combinedReducedFeatsMap.containsKey(nodeId);
-                    for ( int i = 1; i < splitted.length; i++) {
-                        if( splitted[i].equals("1")) {
-                            if(firstinit) {
-                                combinedReducedFeatsMap.put(nodeId,new HashSet<>( Arrays.asList(featnames.get(idx))));
-                                firstinit = false;
-                            } else {
-                                combinedReducedFeatsMap.get(nodeId).add(featnames.get(idx));
+                    while ((line = br.readLine()) != null) {
+                        for (String currentFeat : line.split(" ")) {
+                            if (currentFeat.equals("1")) {
+                                reducedEgoFeats.add(featnames.get(idx));
                             }
+                            idx++;
                         }
-                        idx++;
+                        if (combinedReducedFeatsMap.containsKey(ego)) {
+                            combinedReducedFeatsMap.get(ego).addAll(reducedEgoFeats);
+                        } else {
+                            combinedReducedFeatsMap.put(ego, new HashSet<>(reducedEgoFeats));
+                        }
                     }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
+
+                // feat file
+                try (BufferedReader br = new BufferedReader(new FileReader(in + ego + ".feat"))) {
+                    String line;
+                    while ((line = br.readLine()) != null) {
+                        String[] splitted = line.split(" ");
+                        String nodeId = splitted[0];
+                        int idx = 0;
+                        boolean firstinit = !combinedReducedFeatsMap.containsKey(nodeId);
+                        for (int i = 1; i < splitted.length; i++) {
+                            if (splitted[i].equals("1")) {
+                                if (firstinit) {
+                                    combinedReducedFeatsMap.put(nodeId, new HashSet<>(Arrays.asList(featnames.get(idx))));
+                                    firstinit = false;
+                                } else {
+                                    combinedReducedFeatsMap.get(nodeId).add(featnames.get(idx));
+                                }
+                            }
+                            idx++;
+                        }
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
             }
 
-        }
-
-        for( String key : combinedReducedFeatsMap.keySet()) {
-            try (FileWriter fw = new FileWriter(out + "preVectors/" + key)) {
-                List<String> sort = new ArrayList<>(combinedReducedFeatsMap.get(key));
-                Collections.sort(sort);
-                fw.write(String.join(" ", sort));
-                fw.flush();
-            } catch (Exception e) {
-                e.printStackTrace();
+            for (String key : combinedReducedFeatsMap.keySet()) {
+                try (FileWriter fw = new FileWriter(out + "preVectors/" + key)) {
+                    List<String> sort = new ArrayList<>(combinedReducedFeatsMap.get(key));
+                    Collections.sort(sort);
+                    fw.write(String.join(" ", sort));
+                    fw.flush();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                log.info("reduced feats for " + key);
             }
-            log.info("reduced feats for " + key);
+        } else {
+            log.info("skip preprocessing feats");
         }
 
         /**
@@ -161,7 +165,7 @@ public class PreProcessor {
      * Getter vertices list
      * @return verticesList
      */
-    public List<Vertex<String>> getVerices() {
+    public List<Vertex<String>> getVertices() {
         return verticesList;
     }
 
