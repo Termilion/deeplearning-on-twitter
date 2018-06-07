@@ -102,15 +102,17 @@ public class Cli{
             GraphGenerator gem = new GraphGenerator(edgesFile,preProcessor.getVertices(),preProcessor.getLabelToIdMap());
             Graph<String, String> graph = gem.getGraph();
 
-            // Sinnvoll? Erlaubt gerichtete Graphen!
+            // Knoten die keine ausgehenden Kanten besitzen müssen auf sich selbst zeigen um Fehlern vorzubeugen
             int i = 0;
             for( Vertex ver : graph.getVertices(0,graph.numVertices()-1)) {
                 if(graph.getVertexDegree(ver.vertexID()) == 0) {
                     int id = ver.vertexID();
                     String label = id + "-->" + id;
                     graph.addEdge(new Edge<String>(id, id, label, true));
+                    i++;
                 }
             }
+            Logger.getGlobal().info("added " + i + "reflective edges");
 
             // walking deep
             Logger.getGlobal().info("init DeepWalk");
