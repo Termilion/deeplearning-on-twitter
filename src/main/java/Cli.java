@@ -1,4 +1,5 @@
 import org.apache.commons.cli.*;
+import org.deeplearning4j.graph.api.Edge;
 import org.deeplearning4j.graph.api.Vertex;
 import org.deeplearning4j.graph.graph.Graph;
 import org.deeplearning4j.graph.models.GraphVectors;
@@ -100,9 +101,15 @@ public class Cli{
             PreProcessor preProcessor = new PreProcessor(twitterDir,outDir,edgesFile);
             GraphGenerator gem = new GraphGenerator(edgesFile,preProcessor.getVertices(),preProcessor.getLabelToIdMap());
             Graph<String, String> graph = gem.getGraph();
+
+            // Sinnvoll? Erlaubt gerichtete Graphen!
             int i = 0;
             for( Vertex ver : graph.getVertices(0,graph.numVertices()-1)) {
-                if(graph.getVertexDegree(ver.vertexID()) == 0) i++;
+                if(graph.getVertexDegree(ver.vertexID()) == 0) {
+                    int id = ver.vertexID();
+                    String label = id + "-->" + id;
+                    graph.addEdge(new Edge<String>(id, id, label, true));
+                }
             }
 
             // walking deep

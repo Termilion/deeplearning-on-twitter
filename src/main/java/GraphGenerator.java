@@ -36,7 +36,7 @@ public class GraphGenerator {
                          * TODO directed: true
                          * so maybe remove all degree null vertices
                          */
-                        from + "-->" + to, false));
+                        from + "-->" + to, true));
                 edgesCount++;
             }
         } catch ( Exception e ) {
