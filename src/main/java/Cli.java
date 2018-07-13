@@ -71,8 +71,8 @@ public class Cli{
             int dw_windowSize = 4;
             int dw_vectorSize = 10;
 
-            int pv_layerSize = 8;
-            int pv_windowSize = 4;
+            int pv_layerSize = 8; // Test mit 20/50/100
+            int pv_windowSize = 4; // = Wortzahl
 
             CommandLine commandLine = Cli.getCommnadLine(args);
 
