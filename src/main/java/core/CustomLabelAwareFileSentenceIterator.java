@@ -1,3 +1,5 @@
+package core;
+
 import org.deeplearning4j.text.sentenceiterator.FileSentenceIterator;
 import org.deeplearning4j.text.sentenceiterator.SentencePreProcessor;
 import org.deeplearning4j.text.sentenceiterator.labelaware.LabelAwareSentenceIterator;

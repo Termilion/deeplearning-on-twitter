@@ -1,3 +1,5 @@
+package core;
+
 import org.deeplearning4j.graph.api.Edge;
 import org.deeplearning4j.graph.api.Vertex;
 import org.deeplearning4j.graph.graph.Graph;
@@ -12,10 +14,10 @@ import java.util.logging.Logger;
  */
 public class GraphGenerator {
 
-    private Logger log = Logger.getLogger("GraphGenerator");
+    private Logger log = Logger.getLogger("core.GraphGenerator");
     private Graph<String, String> graph;
 
-    GraphGenerator(File edges, List<Vertex<String>> vertices, Map<String,Integer> labelToIdMap) {
+    public GraphGenerator(File edges, List<Vertex<String>> vertices, Map<String,Integer> labelToIdMap) {
         log.info("loading graph");
 
 //        Graph<String, String>

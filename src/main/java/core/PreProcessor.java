@@ -1,3 +1,5 @@
+package core;
+
 import org.deeplearning4j.graph.api.Vertex;
 
 import java.io.*;
@@ -9,12 +11,12 @@ import java.util.logging.Logger;
  */
 public class PreProcessor {
 
-    Logger log = Logger.getLogger("PreProcessor");
+    Logger log = Logger.getLogger("core.PreProcessor");
     List<Vertex<String>> verticesList = new ArrayList<>();
     Map<String, Integer> labelToIdMap = new HashMap<>();
     Map<String, Set<String>> combinedReducedFeatsMap = new HashMap();
 
-    PreProcessor(String in, String out, File edges) {
+    public PreProcessor(String in, String out, File edges) {
         if( !new File(out+"preVectors/").exists()) {
             log.info("pre processing data");
             File inFolder = new File(in);

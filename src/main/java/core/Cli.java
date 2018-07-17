@@ -1,3 +1,5 @@
+package core;
+
 import org.apache.commons.cli.*;
 import org.deeplearning4j.graph.api.Edge;
 import org.deeplearning4j.graph.api.Vertex;
