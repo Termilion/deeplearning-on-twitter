@@ -65,14 +65,14 @@ public class SingeltonMemory {
 
         String pvFile = outDir + "paraVec-" + pv_layerSize + "-" + pv_windowSize + ".pv";
         String dwFile = outDir + "deepWalk-" + dw_walkLength + "-" + dw_windowSize + "-" + dw_vectorSize + ".dw";
-        if (new File(outDir + "").exists() && new File(outDir + "").exists()) {
+        if (new File(pvFile).exists() && new File(dwFile).exists()) {
             try {
                 paraVec = WordVectorSerializer.readParagraphVectors(pvFile);
                 Logger.getGlobal().info("loaded dw from file");
                 deepWalk = GraphVectorSerializer.loadTxtVectors(new File(dwFile));
                 Logger.getGlobal().info("loaded pv from file");
             } catch (IOException ioe) {
-                ioe.printStackTrace();W
+                ioe.printStackTrace();
             }
 
         } else {
