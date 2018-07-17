@@ -1,0 +1,89 @@
+
+<head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <!--<script src="javascripts/jquery.tablesorter.min.js"></script>-->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <title>DeepVis</title>
+    <link rel="stylesheet" href="def.css">
+</head>
+<body>
+<h1>
+    DeepLearning4J
+</h1>
+<hr>
+<h3>Description</h3>
+1. Chosse a nodeId<br>
+<p>
+    2. Select an action
+</p>
+
+<p>
+    ---compare to other nodeId
+</p>
+<p>
+    ---show k-Top similar nodes
+</p>
+<hr>
+
+<form action="./" method="get">
+<div class="form-row">
+    <div class="form-group col-md-5">
+        <label for="nodeId">nodeOne</label>
+        <input type="text" class="form-control" placeholder="nodeId" id="nodeId" name="s" value="12831">
+    </div>
+</div>
+<div class="form-group col-md-2">
+    <label for="action">action</label>
+    <select id="action" class="form-control" onchange="change_action(document.getElementById('action').value)">
+        <option value="CompareTo">CompareTo</option>
+        <option value="K-Top">K-Top Similar</option>
+    </select>
+</div>
+<div class="form-group col-md-5 d1">
+    <label for="nodeId2">nodeTwo</label>
+    <input type="text" class="form-control" placeholder="nodeId" id="nodeId2" name="s" value="761">
+    <!-- <button id="sourceList" type="button" class="btn btn-primary btn-lg">Large button</button> -->
+</div>
+    <div style="display: none;" class="form-group col-md-5 d2" >
+        <label for="knumber">top</label>
+        <input type="text" class="form-control" placeholder="number of k" id="knumber" name="s" value="5">
+        <!-- <button id="sourceList" type="button" class="btn btn-primary btn-lg">Large button</button> -->
+    </div>
+</form>
+<div class="box1">
+    ParagraphVec
+</div>
+<div class="box2">
+    DeepWalk
+</div>
+</body>
+<script>
+
+
+
+    //document.getElementById('d2').attr("disabled", true)
+    function change_action(selected_action){
+
+        action = document.getElementById('action').value;
+        console.log(action);
+
+        if( action == "CompareTo" ) {
+            console.log("yes");
+            $('.d2').css('display', 'none');
+            $('.d1').css('display', 'block');
+        } else {
+            $('.d1').css('display', 'none');
+            $('.d2').css('display', 'block');
+        }
+
+        //if( selected_action == "K-Top" ) {
+        //    document.getElementById('nodeId2').readOnly = true;
+        //} else {
+        //    document.getElementById('nodeId2').readOnly = false;
+        //}
+        //var current = window.location.href;
+        //current = current.substr(0,current.indexOf('?'))
+        //window.location.href = current+ "?action="+encodeURIComponent(document.getElementById('action').value);
+    }
+</script>

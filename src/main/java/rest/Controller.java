@@ -2,11 +2,17 @@ package rest;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.mortbay.util.ajax.JSON;
 import org.nd4j.linalg.api.ops.impl.transforms.Sin;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @RequestMapping("/")
@@ -79,6 +85,56 @@ public class Controller {
         ret.put("similarities", simArr);
         return ret.toJSONString();
     }
+
+
+
+    @RequestMapping(value = "getFriends", method = RequestMethod.GET)
+    public String getFriends(
+            @RequestParam(value="label",required=true)String label
+    ) {
+        SingeltonMemory sm = SingeltonMemory.getInstance();
+
+        int [] ids = sm.getGraph().getConnectedVertexIndices(sm.labelToIdMap.get(label));
+        JSONObject ret = new JSONObject();
+        ret.put("selection",label);
+        JSONArray idArr = new JSONArray();
+        for(Integer id : ids) {
+            idArr.add(sm.idToLabelMap.get(id));
+        }
+        ret.put("friends",idArr);
+        return ret.toJSONString();
+    }
+
+    @RequestMapping(value = "getFeats", method = RequestMethod.GET)
+    public String getFeats(
+            @RequestParam(value="label",required=true)String label
+    ) {
+        SingeltonMemory sm = SingeltonMemory.getInstance();
+
+        String featFile = sm.outDir+"/preVectors/"+label;
+
+        List<String> feats = new ArrayList<>();
+
+        try (BufferedReader br = new BufferedReader(new FileReader(featFile))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                for(String feat : line.split(" ")) {
+                    feats.add(feat);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
+        JSONObject ret = new JSONObject();
+        ret.put("selection",label);
+        JSONArray featArr = new JSONArray();
+        featArr.addAll(feats);
+        ret.put("feats",featArr);
+        return ret.toJSONString();
+    }
+
 
 
 }

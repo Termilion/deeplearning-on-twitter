@@ -28,6 +28,9 @@ public class SingeltonMemory {
     private ParagraphVectors paraVec;
     private GraphVectors deepWalk;
     Map<String, Integer> labelToIdMap;
+    Map<Integer, String> idToLabelMap;
+
+    String outDir;
 
     private static SingeltonMemory instance;
     private SingeltonMemory () {}
@@ -39,6 +42,7 @@ public class SingeltonMemory {
     }
 
     public void init(String twitterDir, String outDir, File edgesFile) {
+        this.outDir = outDir;
         preProcessor = new PreProcessor(twitterDir, outDir, edgesFile);
         labelToIdMap = preProcessor.getLabelToIdMap();
         gem = new GraphGenerator(edgesFile, preProcessor.getVertices(), preProcessor.getLabelToIdMap());
@@ -109,6 +113,12 @@ public class SingeltonMemory {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }
+
+        idToLabelMap = new HashMap<>();
+
+        for(String label : labelToIdMap.keySet()) {
+            idToLabelMap.put(labelToIdMap.get(label),label);
         }
     }
 
