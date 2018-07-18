@@ -10,7 +10,7 @@
 </head>
 <body>
 <h1>
-    DeepLearning4J
+    Big Data Praktikum
 </h1>
 <hr>
 <h3>Description</h3>
@@ -57,19 +57,149 @@
 </div>
 </body>
 <script>
-    function loadGraph(div, path) {
-        //width and height
-        var w = 500;
-        var h = 400;
-        var padding = 40;
+    var w = 500;
+    var h = 400;
+    var padding = 40;
 
-        var vectorNodes = [];
+    function topk(id, k, div){
         var svg = d3.select(div)
             .append("svg")
             .attr("width", w)
             .attr("height", h);
 
+        d3.json("http://v122.de:8080/deepWalk/topK?label="+ id +"&k="+ k).then(function (json) {
+           var topKNodes = json.similar;
+           var mainNode = json.selection;
+           topKNodes.push({label: json.selection, sim: 1});
+           var nodeArgs = "";
+           topKNodes.forEach(function (n) {
+               nodeArgs = nodeArgs + n.label + ";";
+           });
+           d3.json("http://v122.de:8080/deepWalk/getFriends?label=" + nodeArgs).then(function (friends) {
+               var n = [];
+               var e = [];
+               friends.forEach(function (v) {
+                   n.push({id:v.label});
+                   v.friends.forEach(function (l) {
+                       if(!n.map(function (value) { return value.id }).includes(l)) n.push({id:l});
+                       e.push({source: v.label, target: l});
+                   });
+               });
+               var graph = {nodes: n, links: e};
+
+               var graphLayout = d3.forceSimulation(graph.nodes)
+                   .force("charge", d3.forceManyBody().strength(-300))
+                   .force("center", d3.forceCenter(w / 2, h / 2))
+                   .force("x", d3.forceX(w / 2).strength(1))
+                   .force("y", d3.forceY(h / 2).strength(1))
+                   .force("link", d3.forceLink(graph.links).id(function(d) {return d.id; }).distance(50).strength(1))
+                   .on("tick", ticked);
+
+               var adjlist = [];
+               graph.links.forEach(function(d) {
+                   adjlist[d.source.index + "-" + d.target.index] = true;
+                   adjlist[d.target.index + "-" + d.source.index] = true;
+               });
+               function neigh(a, b) {
+                   return a == b || adjlist[a + "-" + b];
+               }
+               var container = svg.append("g");
+               svg.call(
+                   d3.zoom()
+                       .scaleExtent([.1, 4])
+                       .on("zoom", function() { container.attr("transform", d3.event.transform); })
+               );
+               var link = container.append("g").attr("class", "links")
+                   .selectAll("line")
+                   .data(graph.links)
+                   .enter()
+                   .append("line")
+                   .attr("stroke", "grey")
+                   .attr("stroke-width", "1px");
+               var node = container.append("g").attr("class", "nodes")
+                   .selectAll("g")
+                   .data(graph.nodes)
+                   .enter()
+                   .append("circle")
+                   .attr("r", function (d) {
+                       if(topKNodes.map(function (k) {
+                           return k.label;
+                       }).includes(d.id)) return 20;
+                       else return 5;
+                   })
+                   .attr("fill", function(d) {
+                       if(topKNodes.map(function (k) {return k.label;}).includes(d.id)) {
+                           if(d.id === mainNode) return "red";
+                           else return "green"
+                       }
+                       else return "blue";
+                   });
+               node.on("mouseover", focus).on("mouseout", unfocus);
+               node.call(
+                   d3.drag()
+                       .on("start", dragstarted)
+                       .on("drag", dragged)
+                       .on("end", dragended)
+               );
+               function ticked() {
+                   node.call(updateNode);
+                   link.call(updateLink);
+               }
+               function fixna(x) {
+                   if (isFinite(x)) return x;
+                   return 0;
+               }
+               function focus(d) {
+                   var index = d3.select(d3.event.target).datum().index;
+                   node.style("opacity", function(o) {
+                       return neigh(index, o.index) ? 1 : 0.1;
+                   });
+                   link.style("opacity", function(o) {
+                       return o.source.index == index || o.target.index == index ? 1 : 0.1;
+                   });
+               }
+               function unfocus() {
+                   node.style("opacity", 1);
+                   link.style("opacity", 1);
+               }
+               function updateLink(link) {
+                   link.attr("x1", function(d) { return fixna(d.source.x); })
+                       .attr("y1", function(d) { return fixna(d.source.y); })
+                       .attr("x2", function(d) { return fixna(d.target.x); })
+                       .attr("y2", function(d) { return fixna(d.target.y); });
+               }
+               function updateNode(node) {
+                   node.attr("transform", function(d) {
+                       return "translate(" + fixna(d.x) + "," + fixna(d.y) + ")";
+                   });
+               }
+               function dragstarted(d) {
+                   d3.event.sourceEvent.stopPropagation();
+                   if (!d3.event.active) graphLayout.alphaTarget(0.3).restart();
+                   d.fx = d.x;
+                   d.fy = d.y;
+               }
+               function dragged(d) {
+                   d.fx = d3.event.x;
+                   d.fy = d3.event.y;
+               }
+               function dragended(d) {
+                   if (!d3.event.active) graphLayout.alphaTarget(0);
+                   d.fx = null;
+                   d.fy = null;
+               }
+           });
+        });
+    }
+
+    function loadGraph(div, path) {
+        var vectorNodes = [];
         var isSelected = null;
+
+        var svg = d3.select(div)
+            .append("svg")
+            .attr("width", w)
+            .attr("height", h);
 
         d3.text(path).then(function (d) {
             var vectors = d.split("\n");
@@ -171,9 +301,15 @@
         }, function (e) {
             throw e;
         });
+        svg.call(
+            d3.zoom()
+                .scaleExtent([.1, 4])
+                .on("zoom", function() { svg.attr("transform", d3.event.transform); })
+        );
     }
-    loadGraph(".box1", "../twitter-prepro/paraVec-3-25.pv");
-    loadGraph(".box2", "../twitter-prepro/deepWalk-400-200-3.dw");
+    topk(12831,50, ".box2");
+    //loadGraph(".box1", "../twitter-prepro/paraVec-3-25.pv");
+    //loadGraph(".box2", "../twitter-prepro/deepWalk-400-200-3.dw");
 </script>
 <script>
     //document.getElementById('d2').attr("disabled", true)
