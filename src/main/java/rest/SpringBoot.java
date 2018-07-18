@@ -37,7 +37,7 @@ public class SpringBoot {
         return new Docket(DocumentationType.SWAGGER_2)
                 .apiInfo(apiInfo())
                 .select()
-                .paths(regex("/.*"))
+                .paths(regex("/deepWalk.*|/graph.*|/paragraphVectors.*"))
                 .build();
     }
 

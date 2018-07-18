@@ -13,11 +13,12 @@ import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer;
 import org.deeplearning4j.models.paragraphvectors.ParagraphVectors;
 import org.deeplearning4j.text.tokenization.tokenizerfactory.DefaultTokenizerFactory;
 import org.deeplearning4j.text.tokenization.tokenizerfactory.TokenizerFactory;
+import org.nd4j.linalg.api.ndarray.INDArray;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Logger;
 
 public class SingeltonMemory {
@@ -61,9 +62,9 @@ public class SingeltonMemory {
 
         int dw_walkLength = 8;
         int dw_windowSize = 4;
-        int dw_vectorSize = 10;
-        int pv_layerSize = 8; // Test mit 20/50/100
-        int pv_windowSize = 4; // = Wortzahl
+        int dw_vectorSize = 3;
+        int pv_layerSize = 3; // Test mit 20/50/100
+        int pv_windowSize = 25; // = Wortzahl
 
         Logger.getGlobal().info("added " + i + "reflective edges");
 
@@ -107,6 +108,31 @@ public class SingeltonMemory {
 
                 paraVec.fit();
 
+                try (FileWriter fw = new FileWriter(pvFile+".default")) {
+                    for(String lab : labelToIdMap.keySet()) {
+                        INDArray indArray = paraVec.lookupTable().vector(lab);
+                        Logger.getGlobal().info("write "+lab);
+                        System.out.println(lab);
+                            try {
+                                fw.write(labelToIdMap.get(lab)+
+                                        "\t"+indArray.getDouble(0)+
+                                        "\t"+indArray.getDouble(1)+
+                                        "\t"+indArray.getDouble(2)
+                                        +"\n");
+                                fw.flush();
+                            } catch (NullPointerException npm) {
+                                fw.write(labelToIdMap.get(lab)
+                                        +"\t0"
+                                        +"\t0"
+                                        +"\t0"
+                                        +"\n");
+                                fw.flush();
+                            }
+                        }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
                 // persist
                 WordVectorSerializer.writeParagraphVectors(paraVec, pvFile);
                 GraphVectorSerializer.writeGraphVectors(dw, dwFile);
@@ -117,15 +143,11 @@ public class SingeltonMemory {
 
         idToLabelMap = new HashMap<>();
 
-        for(String label : labelToIdMap.keySet()) {
-            idToLabelMap.put(labelToIdMap.get(label),label);
+        for(String lab : labelToIdMap.keySet()) {
+            idToLabelMap.put(labelToIdMap.get(lab), lab);
         }
-    }
-
-    public void init2() {
 
     }
-
 
     public Graph<String,String> getGraph() {
         return graph;
