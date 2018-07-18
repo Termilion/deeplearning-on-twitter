@@ -24,7 +24,7 @@ import java.util.*;
 public class DWController {
 
     @ApiOperation(value = "Top K Request")
-    @RequestMapping(value = "topK", method = RequestMethod.GET)
+    @RequestMapping(value = "topK", method = RequestMethod.GET, produces = "application/json")
     public String topK(
             @ApiParam(defaultValue = "12831") @RequestParam(value="label",required=true)String label,
             @ApiParam(defaultValue = "5")@RequestParam(value="k",required=true)int k
@@ -64,7 +64,7 @@ public class DWController {
 
 
     @ApiOperation(notes = "get friends from label list separated by ';' ", value = "Friends Request")
-    @RequestMapping(value = "getFriends", method = RequestMethod.GET)
+    @RequestMapping(value = "getFriends", method = RequestMethod.GET, produces = "application/json")
     public String getFriends(
             @ApiParam(defaultValue = "12831;761") @RequestParam(value="label",required=true)String label
     ) {
@@ -91,7 +91,7 @@ public class DWController {
     }
 
     @ApiOperation(value = "Top K Request with internal nearest method")
-    @RequestMapping(value = "topKnearest", method = RequestMethod.GET)
+    @RequestMapping(value = "topKnearest", method = RequestMethod.GET, produces = "application/json")
     public String topKdefault(
             @ApiParam(defaultValue = "12831") @RequestParam(value="label",required=true)String label,
             @ApiParam(defaultValue = "5")@RequestParam(value="k",required=true)int k
