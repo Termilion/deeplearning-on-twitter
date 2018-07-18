@@ -7,10 +7,7 @@ import org.deeplearning4j.models.paragraphvectors.ParagraphVectors;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.nd4j.linalg.api.ops.impl.transforms.Sin;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -22,8 +19,9 @@ import java.util.List;
 @RequestMapping("/paragraphVectors")
 public class PVController {
 
+    @CrossOrigin
     @ApiOperation(value = "Top K Request internal method")
-    @RequestMapping(value = "topKnearest", method = RequestMethod.GET)
+    @RequestMapping(value = "topKnearest", method = RequestMethod.GET, produces = "application/json")
     public String topKnearest(
             @ApiParam(defaultValue = "12831") @RequestParam(value="label",required=true)String label,
             @ApiParam(defaultValue = "5")@RequestParam(value="k",required=true)int k
@@ -45,8 +43,9 @@ public class PVController {
         return ret.toJSONString();
     }
 
+    @CrossOrigin
     @ApiOperation(value = "Feats Request", notes = "labels ; seperated")
-    @RequestMapping(value = "getFeats", method = RequestMethod.GET)
+    @RequestMapping(value = "getFeats", method = RequestMethod.GET, produces = "application/json")
     public String getFeats(
             @ApiParam(defaultValue = "12831") @RequestParam(value="label",required=true)String label
     ) {
@@ -76,8 +75,9 @@ public class PVController {
         return ret.toJSONString();
     }
 
+    @CrossOrigin
     @ApiOperation(value = "Top K Request")
-    @RequestMapping(value = "topK", method = RequestMethod.GET)
+    @RequestMapping(value = "topK", method = RequestMethod.GET, produces = "application/json")
     public String topK(
             @ApiParam(defaultValue = "12831") @RequestParam(value="label",required=true)String label,
             @ApiParam(defaultValue = "5")@RequestParam(value="k",required=true)int k

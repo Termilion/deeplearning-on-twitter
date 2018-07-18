@@ -10,10 +10,7 @@ import org.deeplearning4j.graph.models.GraphVectors;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.net.URLDecoder;
 import java.util.*;
@@ -23,6 +20,7 @@ import java.util.*;
 @RequestMapping("/deepWalk")
 public class DWController {
 
+    @CrossOrigin
     @ApiOperation(value = "Top K Request")
     @RequestMapping(value = "topK", method = RequestMethod.GET, produces = "application/json")
     public String topK(
@@ -63,6 +61,7 @@ public class DWController {
 
 
 
+    @CrossOrigin
     @ApiOperation(notes = "get friends from label list separated by ';' ", value = "Friends Request")
     @RequestMapping(value = "getFriends", method = RequestMethod.GET, produces = "application/json")
     public String getFriends(
@@ -90,6 +89,7 @@ public class DWController {
         return ret.toJSONString();
     }
 
+    @CrossOrigin
     @ApiOperation(value = "Top K Request with internal nearest method")
     @RequestMapping(value = "topKnearest", method = RequestMethod.GET, produces = "application/json")
     public String topKdefault(
