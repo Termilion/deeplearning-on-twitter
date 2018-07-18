@@ -57,107 +57,123 @@
 </div>
 </body>
 <script>
-    //width and height
-    var w = 500;
-    var h = 400;
-    var padding = 40;
+    function loadGraph(div, path) {
+        //width and height
+        var w = 500;
+        var h = 400;
+        var padding = 40;
 
-    var vectorNodes = [];
-    var svg = d3.select(".box2")
-        .append("svg")
-        .attr("width", w)
-        .attr("height", h);
+        var vectorNodes = [];
+        var svg = d3.select(div)
+            .append("svg")
+            .attr("width", w)
+            .attr("height", h);
 
-    //scale function
-    var xScale = d3.scaleLinear()
-        .domain([-3, 6])
-        .range([padding, w - padding * 2]);
+        var isSelected = null;
 
-    var yScale = d3.scaleLinear()
-        .domain([-5, 6])
-        .range([h - padding, padding]);
+        d3.text(path).then(function (d) {
+            var vectors = d.split("\n");
+            vectors.forEach(function (vec) {
+                var values = vec.split("\t");
+                if(values.length >= 4) vectorNodes.push({id: values[0], x: values[1], y: values[2], z: values[3]});
+            });
+            var xmax = Math.max.apply(Math, vectorNodes.map(function(d){return d.x;}));
+            var ymax = Math.max.apply(Math, vectorNodes.map(function(d){return d.y;}));
+            var zmax = Math.max.apply(Math, vectorNodes.map(function(d){return d.z;}));
+            var xmin = Math.min.apply(Math, vectorNodes.map(function(d){return d.x;}));
+            var ymin = Math.min.apply(Math, vectorNodes.map(function(d){return d.y;}));
+            var zmin = Math.min.apply(Math, vectorNodes.map(function(d){return d.z;}));
+            //scale function
+            var xScale = d3.scaleLinear()
+                .domain([xmin-0.1, xmax+0.1])
+                .range([padding, w - padding * 2]);
+            var yScale = d3.scaleLinear()
+                .domain([ymin-0.1, ymax+0.1])
+                .range([h - padding, padding]);
+            var zScale = d3.scaleLinear()
+                .domain([zmin, zmax])
+                .range([10, 3]);
+            var colorScale = d3.scaleLinear()
+                .domain([zmin, zmax])
+                .range(["blue", "red"]);
 
-    var zScale = d3.scaleSqrt()
-        .domain([-10, 10])
-        .range([10, 0.1]);
+            var xAxis = d3.axisBottom().scale(xScale).ticks(10);
+            var yAxis = d3.axisLeft().scale(yScale).ticks(10);
 
-    var colorScale = d3.scaleSqrt()
-        .domain([-3, 3])
-        .range(["blue", "red"]);
+            //Sort so smaller nodes get displayed in front of larger nodes
+            vectorNodes.sort(function (a, b) {return a.z - b.z;});
 
-    var xAxis = d3.axisBottom().scale(xScale).ticks(10);
-
-    var yAxis = d3.axisLeft().scale(yScale).ticks(10);
-    var isSelected = null;
-
-    d3.text("../deepwalk.tsv").then(function (d) {
-        var vectors = d.split("\n");
-        vectors.forEach(function (vec) {
-            var values = vec.split("\t");
-            if(values.length >= 4) vectorNodes.push({id: values[0], x: values[1], y: values[2], z: values[3]});
-        });
-        vectorNodes.sort(function (a, b) {return a.z - b.z;});
-        svg.selectAll("circle").data(vectorNodes).enter().append("circle")
-            .attr("id", function (d) {
-                return d.id;
-            })
-            .attr("cx", function (d) {
-                return xScale(d.x);
-            })
-            .attr("cy", function(d){
-                return yScale(d.y);
-            })
-            .attr("r", function(d){
-                return zScale(d.z);
-            })
-            .attr("fill", function (d) {
-                return colorScale(d.z);
-            })
-            .attr("stroke","white")
-            .on("mouseover", function(d) {
-                d3.select(".log")
-                    .html(d.id + "<br/>"  + d.x + ", " + d.y + ", " + d.z)
-                d3.select(this).transition().attr("r",function (d) {
-                    return zScale(d.z)+5;
-                });
-            })
-            .on("mouseout", function(d) {
-                d3.select(".log")
-                    .html("<br/>");
-                d3.select(this).transition().attr("r", function (d) {
+            svg.selectAll("circle").data(vectorNodes).enter().append("circle")
+                .attr("id", function (d) {
+                    return "c"+d.id;
+                })
+                .attr("cx", function (d) {
+                    return xScale(d.x);
+                })
+                .attr("cy", function(d){
+                    return yScale(d.y);
+                })
+                .attr("r", function(d){
                     return zScale(d.z);
-                });
-            })
-            .on("click", function(d) {
-                if(isSelected != null) {
-                    if(isSelected === d.id) {
-                        d3.select(this).attr("fill", colorScale(d.z));
-                        isSelected = null;
+                })
+                .attr("fill", function (d) {
+                    return colorScale(d.z);
+                })
+                .attr("stroke","white")
+                .on("mouseover", function(d) {
+                    d3.select(".log")
+                        .html(d.id + "<br/>"  + d.x + ", " + d.y + ", " + d.z);
+                    d3.selectAll("#c"+d.id).transition().attr("r",function (d) {
+                        return zScale(d.z)+10;
+                    });
+                })
+                .on("mouseout", function(d) {
+                    if(isSelected !== d.id){
+                        d3.select(".log")
+                            .html("<br/>");
+                        d3.selectAll("#c"+d.id).transition().attr("r", function (d) {
+                            return zScale(d.z);
+                        });
+                    }
+                })
+                .on("click", function(d) {
+                    if(isSelected != null) {
+                        if(isSelected === d.id) {
+                            d3.selectAll("#c"+d.id).attr("fill", colorScale(d.z));
+                            d3.select(".log")
+                                .html("<br/>");
+                            isSelected = null;
+                        } else {
+                            d3.selectAll(".c"+isSelected).attr("fill", colorScale(d.z));
+                            d3.selectAll("#c"+d.id).attr("fill", "green");
+                            isSelected = d.id;
+                            d3.selectAll("#c"+d.id).transition().attr("r",function (d) {
+                                return zScale(d.z)+5;
+                            });
+                        }
                     } else {
-                        d3.select(this).attr("fill", "green");
+                        d3.selectAll("#c"+d.id).attr("fill", "green");
                         isSelected = d.id;
                     }
-                } else {
-                    d3.select(this).attr("fill", "green");
-                    isSelected = d.id;
-                }
-            });
+                });
 
-        //x axis
-        svg.append("g")
-            .attr("class", "x axis")
-            .attr("transform", "translate(0," + (h - padding) + ")")
-            .call(xAxis);
+            //x axis
+            svg.append("g")
+                .attr("class", "x axis")
+                .attr("transform", "translate(0," + (h - padding) + ")")
+                .call(xAxis);
 
-        //y axis
-        svg.append("g")
-            .attr("class", "y axis")
-            .attr("transform", "translate(" + padding + ", 0)")
-            .call(yAxis);
-    }, function (e) {
-        throw e;
-    });
-
+            //y axis
+            svg.append("g")
+                .attr("class", "y axis")
+                .attr("transform", "translate(" + padding + ", 0)")
+                .call(yAxis);
+        }, function (e) {
+            throw e;
+        });
+    }
+    loadGraph(".box1", "../twitter-prepro/paraVec-3-25.pv");
+    loadGraph(".box2", "../twitter-prepro/deepWalk-400-200-3.dw");
 </script>
 <script>
     //document.getElementById('d2').attr("disabled", true)

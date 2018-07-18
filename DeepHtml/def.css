@@ -1,14 +1,14 @@
 .box1 {
      float: left;
      padding: 20px;
-     background: lightblue;
+     background: #f9f9f9;
      width: 50%;
      height: 500px;
 }
 .box2 {
      float: left;
      padding: 20px;
-     background: lightgreen;
+     background: #f9f9f9;
      width: 50%;
      height: 500px;
 }
