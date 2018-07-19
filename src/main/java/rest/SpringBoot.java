@@ -44,7 +44,8 @@ public class SpringBoot {
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder().title("Twitter Graph DeepLearning").
                 description("Rest Api für das Abfragen von DeepWalk and Paragraph-Vector basierten Graph Embeddings.\n" +
-                        "Abfragen erfüllen den Zweck Ähnlichkeiten zwischen einem Knoten A mit seinen TopK oder einem anderen Knoten B zu analysieren.\n")
+                        "Abfragen um Ähnlichkeiten zwischen Knoten A mit seinen TopK oder Knoten B zu analysieren.\n"+
+                        "\nRobert Bielinski und Marvin Hofer")
                 //.termsOfServiceUrl("http://www-03.ibm.com/software/sla/sladb.nsf/sla/bm?Open")
                 //.contact("Marvin Hofer")
                 .license("Apache License Version 2.0")

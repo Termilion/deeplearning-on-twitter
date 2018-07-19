@@ -44,8 +44,8 @@
         <!-- <button id="sourceList" type="button" class="btn btn-primary btn-lg">Large button</button> -->
     </div>
     <div style="display: none;" class="form-group col-md-5 d2">
-        <label for="knumber">Top K</label>
-        <input id="kinput" type="text" class="form-control" placeholder="number of k" id="knumber" name="s" value="5">
+        <label for="kInput">Top K</label>
+        <input id="kInput" type="text" class="form-control" placeholder="number of k" name="s" value="5">
         <!-- <button id="sourceList" type="button" class="btn btn-primary btn-lg">Large button</button> -->
     </div>
 </form>
@@ -71,6 +71,7 @@
 
     var inputNodeA = document.getElementById("nodeId");
     var inputNodeB = document.getElementById("nodeId2");
+    var inputKInput = document.getElementById("kInput");
 
     inputNodeA.addEventListener("keyup", function(event) {
       event.preventDefault();
@@ -83,7 +84,13 @@
       event.preventDefault();
       if (event.keyCode === 13) {
         change_action();
+      }
+    });
 
+    inputKInput.addEventListener("keyup", function(event) {
+      event.preventDefault();
+      if (event.keyCode === 13) {
+        change_action();
       }
     });
 
@@ -128,7 +135,7 @@
         if(action === "CompareTo"){
             console.log(test);
         } else {
-            var k = document.getElementById("kinput").value;
+            var k = document.getElementById("kInput").value;
             topkParaVec(node, k, ".box1");
             topkDeepWalk(node, k, ".box2");
         }

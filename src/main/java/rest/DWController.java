@@ -21,7 +21,7 @@ import java.util.*;
 public class DWController {
 
     @CrossOrigin
-    @ApiOperation(value = "Top K Request")
+    @ApiOperation(value = "Top K Request", notes = "Get top K users based on a user label")
     @RequestMapping(value = "topK", method = RequestMethod.GET, produces = "application/json")
     public String topK(
             @ApiParam(defaultValue = "12831") @RequestParam(value="label",required=true)String label,
@@ -62,7 +62,7 @@ public class DWController {
 
 
     @CrossOrigin
-    @ApiOperation(notes = "get friends from label list separated by ';' ", value = "Friends Request")
+    @ApiOperation(notes = "Multiple status values can be provided with semicolon seperated labels ", value = "Friends Request")
     @RequestMapping(value = "getFriends", method = RequestMethod.GET, produces = "application/json")
     public String getFriends(
             @ApiParam(defaultValue = "12831;761") @RequestParam(value="label",required=true)String label
@@ -90,7 +90,7 @@ public class DWController {
     }
 
     @CrossOrigin
-    @ApiOperation(value = "Top K Request with internal nearest method")
+    @ApiOperation(value = "Top K Request Nearest", notes = "TopK with internal nearest method")
     @RequestMapping(value = "topKnearest", method = RequestMethod.GET, produces = "application/json")
     public String topKdefault(
             @ApiParam(defaultValue = "12831") @RequestParam(value="label",required=true)String label,
@@ -101,7 +101,7 @@ public class DWController {
     }
 
     @CrossOrigin
-    @ApiOperation(value = "cosine sim nodeA and nodeB")
+    @ApiOperation(value = "Cosine Similarity", notes = "Cosine Similarity for nodeA and nodeB")
     @RequestMapping(value = "compare", method = RequestMethod.GET, produces = "application/json")
     public String compare(
             @ApiParam(defaultValue = "12831") @RequestParam(value="nodeA",required=true)String nodeA,

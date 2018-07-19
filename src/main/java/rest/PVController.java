@@ -24,7 +24,7 @@ import java.util.*;
 public class PVController {
 
     @CrossOrigin
-    @ApiOperation(value = "Top K Request internal method")
+    @ApiOperation(value = "Top K Request Nearest", notes = "TopK with internal nearest method")
     @RequestMapping(value = "topKnearest", method = RequestMethod.GET, produces = "application/json")
     public String topKnearest(
             @ApiParam(defaultValue = "12831") @RequestParam(value="label",required=true)String label,
@@ -48,10 +48,10 @@ public class PVController {
     }
 
     @CrossOrigin
-    @ApiOperation(value = "Feats Request", notes = "labels ; seperated")
+    @ApiOperation(value = "Feats Request", notes = "Multiple status values can be provided with semicolon seperated labels ")
     @RequestMapping(value = "getFeats", method = RequestMethod.GET, produces = "application/json")
     public String getFeats(
-            @ApiParam(defaultValue = "12831") @RequestParam(value="label",required=true)String label
+            @ApiParam(defaultValue = "12831;761") @RequestParam(value="label",required=true)String label
     ) {
         SingeltonMemory sm = SingeltonMemory.getInstance();
         String[] labels = URLDecoder.decode(label).split(";");
@@ -82,7 +82,7 @@ public class PVController {
     }
 
     @CrossOrigin
-    @ApiOperation(value = "Top K Request")
+    @ApiOperation(value = "Top K Request", notes = "Get top K users based on a user label")
     @RequestMapping(value = "topK", method = RequestMethod.GET, produces = "application/json")
     public String topK(
             @ApiParam(defaultValue = "12831") @RequestParam(value="label",required=true)String label,
@@ -127,7 +127,7 @@ public class PVController {
     }
 
     @CrossOrigin
-    @ApiOperation(value = "cosine sim nodeA and nodeB")
+    @ApiOperation(value = "Cosine Similarity", notes = "Cosine Similarity for nodeA and nodeB")
     @RequestMapping(value = "compare", method = RequestMethod.GET, produces = "application/json")
     public String compare(
             @ApiParam(defaultValue = "12831") @RequestParam(value="nodeA",required=true)String nodeA,
