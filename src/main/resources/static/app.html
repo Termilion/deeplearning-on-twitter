@@ -159,10 +159,13 @@
                 e.push({source: node1, target: l});
             });
             json[1].friends.forEach(function (l) {
-                if(!n.map(function (value) { return value.id }).includes(l)) n.push({id:l, type: "outer"});
+                var map = n.map(function (value) { return value.id });
+                if(!map.includes(l)) n.push({id:l, type: "outer"});
+                else n[map.indexOf(l)] = {id:l, type: "node"};
                 e.push({source: node2, target: l});
             });
-            var graph = {nodes: n.reverse(), links: e};
+            n = sortByType(n);
+            var graph = {nodes: n, links: e};
             loadLocalGraph(graph, ".box2");
         });
         d3.json("http://v122.de:8080/paragraphVectors/getFeats?label=" + nodeArgs).then(function (json) {
@@ -175,11 +178,29 @@
                 e.push({source: node1, target: l});
             });
             json[1].feats.forEach(function (l) {
-                if(!n.map(function (value) { return value.id }).includes(l)) n.push({id:l, type: "outer"});
+                var map = n.map(function (value) { return value.id });
+                if(!map.includes(l)) n.push({id:l, type: "outer"});
+                else n[map.indexOf(l)] = {id:l, type: "node"};
                 e.push({source: node2, target: l});
             });
-            var graph = {nodes: n.reverse(), links: e};
+            n = sortByType(n);
+            var graph = {nodes: n, links: e};
             loadLocalGraph(graph, ".box1");
+        });
+    }
+
+    function sortByType(n) {
+        return n.sort(function (a, b) {
+            if(a.type === "main") return 1;
+            else {
+                if(b.type === "main") return -1;
+                else {
+                    if(a.type === "node") return 1;
+                    else {
+                        return -1;
+                    }
+                }
+            }
         });
     }
 
@@ -203,7 +224,8 @@
                        e.push({source: v.label, target: l});
                    });
                });
-               var graph = {nodes: n.reverse(), links: e};
+               n = sortByType(n);
+               var graph = {nodes: n, links: e};
                loadLocalGraph(graph, div)
            });
         });
@@ -233,7 +255,8 @@
                         e.push({source: v.label, target: l});
                     });
                 });
-                var graph = {nodes: n.reverse(), links: e};
+                n = sortByType(n);
+                var graph = {nodes: n, links: e};
                 loadLocalGraph(graph, div);
             });
         });
