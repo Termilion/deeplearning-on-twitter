@@ -108,6 +108,8 @@ public class PreProcessor {
                 }
                 log.info("reduced feats for " + key);
             }
+
+
         } else {
             log.info("skip preprocessing feats");
         }
@@ -144,6 +146,14 @@ public class PreProcessor {
         Collections.sort(verticesLabelList);
         int idx = 0;
         for(String vertexLabel : verticesLabelList) {
+//            if(!new File(out + "preVectors/"+vertexLabel).exists()) {
+//                try {
+//                    new File(out + "preVectors/"+vertexLabel).createNewFile();
+//                } catch (IOException ioe) {
+//                    Logger.getGlobal().warning("Cant create empty preVectors file");
+//                }
+//
+//            }
             labelToIdMap.put(vertexLabel, idx);
             verticesList.add(new Vertex<>(idx++, vertexLabel));
         }

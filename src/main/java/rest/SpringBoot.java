@@ -37,13 +37,14 @@ public class SpringBoot {
         return new Docket(DocumentationType.SWAGGER_2)
                 .apiInfo(apiInfo())
                 .select()
-                .paths(regex("/.*"))
+                .paths(regex("/deepWalk.*|/graph.*|/paragraphVectors.*"))
                 .build();
     }
 
     private ApiInfo apiInfo() {
-        return new ApiInfoBuilder().title("DeepWalk4J").
-                description("description")
+        return new ApiInfoBuilder().title("Twitter Graph DeepLearning").
+                description("Rest Api für das Abfragen von DeepWalk and Paragraph-Vector basierten Graph Embeddings.\n" +
+                        "Abfragen erfüllen den Zweck Ähnlichkeiten zwischen einem Knoten A mit seinen TopK oder einem anderen Knoten B zu analysieren.\n")
                 //.termsOfServiceUrl("http://www-03.ibm.com/software/sla/sladb.nsf/sla/bm?Open")
                 //.contact("Marvin Hofer")
                 .license("Apache License Version 2.0")
