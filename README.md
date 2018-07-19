@@ -30,8 +30,8 @@ wget https://snap.stanford.edu/data/twitter_combined.txt.gz
 gunzip twitter_combined.txt.gz
 
 mvn package
-java -jar target/*.jar twitter/ persist/ combined_vertices.file
+java -jar target/*.jar twitter/ persist/ twitter_combined.txt
 
 ```
 
-Api Dokumentation ist erreichbar unter localhost:8080/swagger-ui.html
+Jetzt besuchen sie [http://localhost:8080/swagger-ui.html](http://localhost:8080/)
