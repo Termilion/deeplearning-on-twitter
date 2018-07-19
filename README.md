@@ -25,7 +25,7 @@ Wählen sie eine der 3 Actionen:
 
 1. **GlobalView:** Ansicht aller initalisierten Knoten.  
 2. **TopK:** Zeigt die top k ähnlichsten Knoten für einen Eingabe Knoten.  
-3. **CompareTo:** Vergleicht zwei Knote miteinander.  
+3. **CompareTo:** Vergleicht zwei Knoten miteinander.  
 
 ## Installation
 
@@ -47,4 +47,4 @@ java -jar target/*.jar twitter/ persist/ twitter_combined.txt
 
 ```
 
-Jetzt besuchen sie [http://localhost:8080/swagger-ui.html](http://localhost:8080/)
+Die Grafische Benutzeroberfläche und Api Dokumentation ist unter [http://localhost:8080/](http://localhost:8080/) erreichbar.
