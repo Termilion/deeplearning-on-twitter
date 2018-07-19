@@ -14,7 +14,20 @@ Modell ebenfalls als Embedding dargestellt werden. Die Eingabe für das Modell
 sind Dokumente. In dem Fall eine Aneinanderreihung der Tags, so dass für jeden
 Nutzer ein Embedding generiert werden kann
 
-## Usage
+## Grafische Oberfläche
+
+![alt text](https://raw.githubusercontent.com/Termilion/Deep-Walk-4J/master/Gui.PNG)
+
+### Benutzung
+
+Visualisierung der Paragraph- und DeepWalk Vektoren  
+Wählen sie eine der 3 Actionen:  
+
+1. **GlobalView:** Ansicht aller initalisierten Knoten.  
+2. **TopK:** Zeigt die top k ähnlichsten Knoten für einen Eingabe Knoten.  
+3. **CompareTo:** Vergleicht zwei Knote miteinander.  
+
+## Installation
 
 ```
 git clone https://github.com/Termilion/Deep-Walk-4J.git
@@ -30,8 +43,8 @@ wget https://snap.stanford.edu/data/twitter_combined.txt.gz
 gunzip twitter_combined.txt.gz
 
 mvn package
-java -jar target/*.jar twitter/ persist/ combined_vertices.file
+java -jar target/*.jar twitter/ persist/ twitter_combined.txt
 
 ```
 
-Api Dokumentation ist erreichbar unter localhost:8080/swagger-ui.html
+Jetzt besuchen sie [http://localhost:8080/swagger-ui.html](http://localhost:8080/)
