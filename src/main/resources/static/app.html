@@ -67,6 +67,7 @@
     var padding = 40;
     var colorMain = d3.color("#ff9100"),
         colorNode= d3.color("#6314cc"),
+        colorLink= d3.color("#A70110"),
         colorOther= d3.color("#F4F6FF").darker(0.9);
 
     var inputNodeA = document.getElementById("nodeId");
@@ -161,7 +162,7 @@
             json[1].friends.forEach(function (l) {
                 var map = n.map(function (value) { return value.id });
                 if(!map.includes(l)) n.push({id:l, type: "outer"});
-                else n[map.indexOf(l)] = {id:l, type: "node"};
+                else n[map.indexOf(l)] = {id:l, type: "link"};
                 e.push({source: node2, target: l});
             });
             n = sortByType(n);
@@ -180,7 +181,7 @@
             json[1].feats.forEach(function (l) {
                 var map = n.map(function (value) { return value.id });
                 if(!map.includes(l)) n.push({id:l, type: "outer"});
-                else n[map.indexOf(l)] = {id:l, type: "node"};
+                else n[map.indexOf(l)] = {id:l, type: "link"};
                 e.push({source: node2, target: l});
             });
             n = sortByType(n);
@@ -195,7 +196,7 @@
             else {
                 if(b.type === "main") return -1;
                 else {
-                    if(a.type === "node") return 1;
+                    if(a.type === "links" || a.type === "node") return 1;
                     else {
                         return -1;
                     }
@@ -304,13 +305,23 @@
         node.append("circle")
             .attr("r", function (d) {
                 if(d.type === "main") return 25;
-                else if(d.type === "node") return 13;
-                else return 5;
+                else {
+                    if(d.type === "node") return 13;
+                    else {
+                        if(d.type === "link") return 7;
+                        else return 5;
+                    }
+                }
             })
             .attr("fill", function(d) {
                 if(d.type === "main") return colorMain;
-                else if(d.type === "node") return colorNode;
-                else return colorOther;
+                else {
+                    if(d.type === "node") return colorNode;
+                    else {
+                        if(d.type === "link") return colorLink;
+                        else return colorOther;
+                    }
+                }
             })
             .attr("stroke", "white")
             .attr("stroke-width", "1px");
@@ -348,6 +359,7 @@
             });
         }
         function unfocus() {
+            node.selectAll("text").style("opacity", 0);
             node.style("opacity", 1);
             link.style("opacity", 1);
         }
