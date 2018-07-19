@@ -15,48 +15,48 @@
     Big Data Praktikum
 </h1>
 <hr>
-<h3>Description</h3>
-1. Choose a nodeId<br>
-<p>
-    2. Select an action
-</p>
+<!--<h3>Description</h3>-->
+<!--1. Choose a nodeId<br>-->
+<!--<p>-->
+    <!--2. Select an action-->
+<!--</p>-->
 
-<hr>
+<!--<hr>-->
 
 <form onsubmit="return submit();" method="get">
     <div class="form-row">
         <div class="form-group col-md-5">
-            <label for="nodeId">nodeOne</label>
+            <label for="nodeId">Node Label</label>
             <input id="nodeId" type="text" class="form-control" placeholder="nodeId" id="nodeId" name="s" value="12831" >
         </div>
     </div>
     <div class="form-group col-md-2">
-        <label for="action">action</label>
-        <select id="action" class="form-control" onchange="change_action(document.getElementById('action').value)">
+        <label for="action">Action</label>
+        <select id="action" class="form-control" onchange="change_action()">
             <option value="GlobalView">GlobalView</option>
-            <option value="CompareTo">CompareTo</option>
+            <option selected="true" value="CompareTo">CompareTo</option>
             <option value="K-Top">K-Top Similar</option>
         </select>
     </div>
-    <div style="display: none;" class="form-group col-md-5 d1">
-        <label for="nodeId2">nodeTwo</label>
+    <div class="form-group col-md-5 d1">
+        <label for="nodeId2">Node Label</label>
         <input type="text" class="form-control" placeholder="nodeId" id="nodeId2" name="s" value="761">
         <!-- <button id="sourceList" type="button" class="btn btn-primary btn-lg">Large button</button> -->
     </div>
     <div style="display: none;" class="form-group col-md-5 d2">
-        <label for="knumber">top</label>
+        <label for="knumber">Top K</label>
         <input id="kinput" type="text" class="form-control" placeholder="number of k" id="knumber" name="s" value="5">
         <!-- <button id="sourceList" type="button" class="btn btn-primary btn-lg">Large button</button> -->
     </div>
 </form>
 <div class="box1main">
     <p>PargraphVector</p>
-    <div class="box1"></div>
+    <div class="box1" id="b1"></div>
     <p id="log1" height="50px" style="padding:10px"></p>
 </div>
 <div class="box2main">
     <p>DeepWalk</p>
-    <div class="box2"></div>
+    <div class="box2" id="b2"></div>
     <p id="log2" height="50px" style="padding:10px"></p>
 </div>
 </body>
@@ -72,32 +72,51 @@
     inputNodeA.addEventListener("keyup", function(event) {
       event.preventDefault();
       if (event.keyCode === 13) {
-        actionkTop();
+        change_action();
       }
     });
 
     inputNodeB.addEventListener("keyup", function(event) {
       event.preventDefault();
       if (event.keyCode === 13) {
-        actionkTop();
+        change_action();
+
       }
     });
 
-    function change_action(selected_action) {
+    function change_action() {
         action = document.getElementById('action').value;
         if (action === "CompareTo") {
             console.log("CompareTo");
             $('.d2').css('display', 'none');
             $('.d1').css('display', 'block');
+            document.getElementById("b1").innerHTML = "";
+            document.getElementById("b2").innerHTML = "";
+            document.getElementById("log1").innerHTML = "";
+            document.getElementById("log2").innerHTML = "";
+            var nodeA = document.getElementById('nodeId').value;
+            var nodeB = document.getElementById('nodeId2').value;
+            compare(nodeA,nodeB);
         } else if (action === "GlobalView" ) {
             console.log("GolbalView");
             $('.d1').css('display', 'none');
             $('.d2').css('display', 'none');
+            document.getElementById("b1").innerHTML = "";
+            document.getElementById("b2").innerHTML = "";
+            document.getElementById("log1").innerHTML = "";
+            document.getElementById("log2").innerHTML = "";
+            loadGlobalGraph(".box1", "paraVec-3-25.pv", "log1");
+            loadGlobalGraph(".box2", "deepWalk-400-200-3.dw", "log2");
         } else {
             console.log("kTop");
-            actionkTop();
             $('.d1').css('display', 'none');
             $('.d2').css('display', 'block');
+            document.getElementById("b1").innerHTML = "";
+            document.getElementById("b2").innerHTML = "";
+            document.getElementById("log1").innerHTML = "";
+            document.getElementById("log2").innerHTML = "";
+            actionkTop();
+
         }
     }
 
@@ -256,8 +275,8 @@
                 else return 5;
             })
             .attr("fill", function(d) {
-                if(d.type === "main") return "red";
-                else if(d.type === "node") return "green";
+                if(d.type === "main") return d3.rgb("FF9100");
+                else if(d.type === "node") return d3.rgb("6314CC");
                 else return "grey";
             });
         node.append("text")
@@ -431,8 +450,7 @@
         });
     }
 
-    //compare("12831", "761");
-    loadGlobalGraph(".box1", "paraVec-3-25.pv", "log1");
-    loadGlobalGraph(".box2", "deepWalk-400-200-3.dw", "log2");
+    compare("12831","761");
+
 </script>
 </html>
