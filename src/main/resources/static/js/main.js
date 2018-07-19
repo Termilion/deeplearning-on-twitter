@@ -94,10 +94,10 @@ function actionkTop(){
 function compare(node1, node2) {
     var nodeArgs = node1 + ";" + node2;
     d3.json("http://v122.de:8080/deepWalk/compare?nodeA=" + node1 +"&nodeB=" + node2).then(function (json) {
-        document.getElementById("log2").innerHTML = "Similarity: " + json.similar[0].sim;
+        document.getElementById("log2").innerHTML = "<strong>Similarity: </strong>" + json.similar[0].sim;
     });
     d3.json("http://v122.de:8080/paragraphVectors/compare?nodeA=" + node1 +"&nodeB=" + node2).then(function (json) {
-        document.getElementById("log1").innerHTML = "Similarity: " + json.similar[0].sim;
+        document.getElementById("log1").innerHTML = "<strong>Similarity: </strong>" + json.similar[0].sim;
     });
     d3.json("http://v122.de:8080/deepWalk/getFriends?label=" + nodeArgs).then(function (json) {
         var n = [];
@@ -401,7 +401,9 @@ function loadGlobalGraph(div, path, log, max) {
             })
             .attr("stroke","white")
             .on("mouseover", function(d) {
-                document.getElementById(log).innerHTML = d.id + "<br/>"  + d.x + ", " + d.y + ", " + d.z;
+                d3.json("http://v122.de:8080/graph/getLabel?id=" + d.id).then( function (jlabel) {
+                     document.getElementById(log).innerHTML = "<strong>Label: </strong>"+jlabel.label+"<br/>"+"<strong>x: </strong>"+d.x + "<strong> y :</strong>"+ d.y+"<strong> z :</strong>"+d.z;
+                });
                 d3.selectAll("#c"+d.id).transition().attr("r",function (d) {
                     return zScale(d.z)+10;
                 });
