@@ -12,7 +12,7 @@
 </head>
 <body>
 <h1>
-    Big Data Praktikum
+    Big Data Praktikum: Twitter Graph - ParagraphVector & DeepWalk
 </h1>
 <hr>
 <!--<h3>Description</h3>-->
@@ -62,9 +62,12 @@
 </body>
 <script>
 
-    var w = 600;
-    var h = 450;
+    var w = 800;
+    var h = 600;
     var padding = 40;
+    var colorMain = d3.color("#ff9100"),
+        colorNode= d3.color("#6314cc"),
+        colorOther= d3.color("#F4F6FF").darker(0.9);
 
     var inputNodeA = document.getElementById("nodeId");
     var inputNodeB = document.getElementById("nodeId2");
@@ -152,7 +155,7 @@
                 if(!n.map(function (value) { return value.id }).includes(l)) n.push({id:l, type: "outer"});
                 e.push({source: node2, target: l});
             });
-            var graph = {nodes: n, links: e};
+            var graph = {nodes: n.reverse(), links: e};
             loadLocalGraph(graph, ".box2");
         });
         d3.json("http://v122.de:8080/paragraphVectors/getFeats?label=" + nodeArgs).then(function (json) {
@@ -168,7 +171,7 @@
                 if(!n.map(function (value) { return value.id }).includes(l)) n.push({id:l, type: "outer"});
                 e.push({source: node2, target: l});
             });
-            var graph = {nodes: n, links: e};
+            var graph = {nodes: n.reverse(), links: e};
             loadLocalGraph(graph, ".box1");
         });
     }
@@ -193,7 +196,7 @@
                        e.push({source: v.label, target: l});
                    });
                });
-               var graph = {nodes: n, links: e};
+               var graph = {nodes: n.reverse(), links: e};
                loadLocalGraph(graph, div)
            });
         });
@@ -223,7 +226,7 @@
                         e.push({source: v.label, target: l});
                     });
                 });
-                var graph = {nodes: n, links: e};
+                var graph = {nodes: n.reverse(), links: e};
                 loadLocalGraph(graph, div);
             });
         });
@@ -275,10 +278,12 @@
                 else return 5;
             })
             .attr("fill", function(d) {
-                if(d.type === "main") return d3.rgb("FF9100");
-                else if(d.type === "node") return d3.rgb("6314CC");
-                else return "grey";
-            });
+                if(d.type === "main") return colorMain;
+                else if(d.type === "node") return colorNode;
+                else return colorOther;
+            })
+            .attr("stroke", "white")
+            .attr("stroke-width", "1px");
         node.append("text")
             .attr("dx", 12)
             .attr("dy", ".35em")
