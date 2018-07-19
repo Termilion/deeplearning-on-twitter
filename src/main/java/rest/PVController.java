@@ -6,14 +6,16 @@ import io.swagger.annotations.ApiParam;
 import org.deeplearning4j.models.paragraphvectors.ParagraphVectors;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.impl.transforms.Sin;
+import org.nd4j.linalg.ops.transforms.Transforms;
 import org.springframework.web.bind.annotation.*;
 
+import javax.xml.crypto.dsig.Transform;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @RestController
 @RequestMapping("/paragraphVectors")
@@ -85,12 +87,39 @@ public class PVController {
 
         SingeltonMemory sm = SingeltonMemory.getInstance();
         ParagraphVectors pv = sm.getParaVec();
+        Set<String> labels = sm.labelToIdMap.keySet();
 
-//            double dotProduct = sourceDoc.arrayTimes(targetDoc).norm1();
-//            double eucledianDist = sourceDoc.normF() * targetDoc.normF();
-//            return dotProduct / eucledianDist;
-//        }
 
-        return "";
+        JSONObject ret = new JSONObject();
+        ret.put("selection", label);
+
+        JSONArray arr = new JSONArray();
+        HashMap<String,Double> entryMap = new HashMap<>();
+
+
+        INDArray A = pv.lookupTable().vector(label);
+        for( String l : labels){
+            INDArray B = pv.lookupTable().vector(l);
+            if( ! Objects.isNull( B ) ) {
+                entryMap.put(l, Transforms.cosineSim(A, B));
+            }
+        }
+
+        List<Map.Entry<String,Double>> sortList= new ArrayList<>(entryMap.entrySet());
+        sortList.sort(Map.Entry.comparingByValue());
+
+        int size = sortList.size();
+
+        for( int e = 2; e < k+2; e++){
+            JSONObject tmp = new JSONObject();
+            String tmplabel = sortList.get( size-e ).getKey();
+            tmp.put("sim", sortList.get( size-e ).getValue());
+            tmp.put("label", tmplabel);
+            arr.add(tmp);
+        }
+
+        ret.put("similar", arr);
+        return ret.toJSONString();
     }
+
 }
