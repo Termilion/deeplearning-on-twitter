@@ -126,4 +126,40 @@ public class PVController {
         return ret.toJSONString();
     }
 
+    @CrossOrigin
+    @ApiOperation(value = "cosine sim nodeA and nodeB")
+    @RequestMapping(value = "compare", method = RequestMethod.GET, produces = "application/json")
+    public String compare(
+            @ApiParam(defaultValue = "12831") @RequestParam(value="nodeA",required=true)String nodeA,
+            @ApiParam(defaultValue = "761")@RequestParam(value="nodeB",required=true)String nodeB
+    ) {
+
+        SingeltonMemory sm = SingeltonMemory.getInstance();
+        ParagraphVectors pv = sm.getParaVec();
+
+        INDArray A = pv.lookupTable().vector(nodeA);
+        INDArray B = pv.lookupTable().vector(nodeB);
+
+        JSONObject ret = new JSONObject();
+        ret.put("selection",nodeA);
+
+        double dumy = 0;
+
+        JSONObject entry = new JSONObject();
+        try {
+            entry.put("sim", Transforms.cosineSim(A, B));
+        } catch (NullPointerException npe) {
+            entry.put("sim", dumy );
+        }
+
+        entry.put("label", nodeB);
+
+        JSONArray arr = new JSONArray();
+        arr.add(entry);
+
+        ret.put("similar",arr);
+
+        return ret.toJSONString();
+    }
+
 }

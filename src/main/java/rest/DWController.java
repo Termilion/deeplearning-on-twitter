@@ -99,4 +99,36 @@ public class DWController {
 
         return "disabled" ;
     }
+
+    @CrossOrigin
+    @ApiOperation(value = "cosine sim nodeA and nodeB")
+    @RequestMapping(value = "compare", method = RequestMethod.GET, produces = "application/json")
+    public String compare(
+            @ApiParam(defaultValue = "12831") @RequestParam(value="nodeA",required=true)String nodeA,
+            @ApiParam(defaultValue = "761")@RequestParam(value="nodeB",required=true)String nodeB
+    ) {
+        SingeltonMemory sm = SingeltonMemory.getInstance();
+        GraphVectors deepWalk = sm.getDeepWalk();
+        Map<String,Integer> idMap = sm.labelToIdMap;
+
+        JSONObject ret = new JSONObject();
+        ret.put("selection", nodeA);
+
+        JSONObject entry = new JSONObject();
+        entry.put("label",nodeB);
+
+        double dumy = 0;
+        try {
+            entry.put("sim",deepWalk.similarity(idMap.get(nodeA),idMap.get(nodeB)));
+        } catch (NullPointerException npe) {
+            entry.put("sim", 0);
+        }
+
+        JSONArray arr = new JSONArray();
+        arr.add(entry);
+
+        ret.put("similar", arr);
+        return ret.toJSONString();
+    }
+
 }
