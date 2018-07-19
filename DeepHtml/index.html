@@ -21,11 +21,11 @@
 
 <hr>
 
-<form action="./" method="get">
+<form onsubmit="return submit();" method="get">
 <div class="form-row">
     <div class="form-group col-md-5">
         <label for="nodeId">nodeOne</label>
-        <input type="text" class="form-control" placeholder="nodeId" id="nodeId" name="s" value="12831">
+        <input id="nodeId" type="text" class="form-control" placeholder="nodeId" id="nodeId" name="s" value="12831">
     </div>
 </div>
 <div class="form-group col-md-2">
@@ -42,7 +42,7 @@
 </div>
     <div style="display: none;" class="form-group col-md-5 d2" >
         <label for="knumber">top</label>
-        <input type="text" class="form-control" placeholder="number of k" id="knumber" name="s" value="5">
+        <input id="kinput" type="text" class="form-control" placeholder="number of k" id="knumber" name="s" value="5">
         <!-- <button id="sourceList" type="button" class="btn btn-primary btn-lg">Large button</button> -->
     </div>
 </form>
@@ -57,9 +57,32 @@
 </div>
 </body>
 <script>
+
     var w = 600;
     var h = 450;
     var padding = 40;
+
+    function change_action(selected_action) {
+        action = document.getElementById('action').value;
+        if (action === "CompareTo") {
+            $('.d2').css('display', 'none');
+            $('.d1').css('display', 'block');
+        } else {
+            $('.d1').css('display', 'none');
+            $('.d2').css('display', 'block');
+        }
+    }
+
+    function submit(){
+        var node = document.getElementById("nodeId").value;
+        if(action === "CompareTo"){
+            console.log(test);
+        } else {
+            var k = document.getElementById("kinput").value;
+            topkParaVec(node, k, ".box1");
+            topkDeepWalk(node, k, ".box2");
+        }
+    }
 
     function topkDeepWalk(id, k, div){
         d3.json("http://v122.de:8080/deepWalk/topK?label="+ id +"&k="+ k).then(function (json) {
@@ -342,26 +365,11 @@
             throw e;
         });
     }
-    topkParaVec(12831,10, ".box1");
-    topkDeepWalk(12831,10, ".box2");
     //loadGlobalGraph(".box1", "../twitter-prepro/paraVec-3-25.pv");
     //loadGlobalGraph(".box2", "../twitter-prepro/deepWalk-400-200-3.dw");
 </script>
 <script>
     //document.getElementById('d2').attr("disabled", true)
-    function change_action(selected_action){
-
-        action = document.getElementById('action').value;
-        console.log(action);
-
-        if( action == "CompareTo" ) {
-            console.log("yes");
-            $('.d2').css('display', 'none');
-            $('.d1').css('display', 'block');
-        } else {
-            $('.d1').css('display', 'none');
-            $('.d2').css('display', 'block');
-        }
 
         //if( selected_action == "K-Top" ) {
         //    document.getElementById('nodeId2').readOnly = true;
@@ -371,5 +379,4 @@
         //var current = window.location.href;
         //current = current.substr(0,current.indexOf('?'))
         //window.location.href = current+ "?action="+encodeURIComponent(document.getElementById('action').value);
-    }
 </script>
