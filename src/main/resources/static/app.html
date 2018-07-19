@@ -49,14 +49,15 @@
         <!-- <button id="sourceList" type="button" class="btn btn-primary btn-lg">Large button</button> -->
     </div>
 </form>
-<div class="box1">
+<div class="box1main">
     <p>PargraphVector</p>
+    <div class="box1"></div>
+    <p id="log1" height="50px" style="padding:10px"></p>
 </div>
-<div class="box2">
+<div class="box2main">
     <p>DeepWalk</p>
-</div>
-<div height="50px" width="100%">
-    <p class="log" height="50px" style="padding:10px"></p>
+    <div class="box2"></div>
+    <p id="log2" height="50px" style="padding:10px"></p>
 </div>
 </body>
 <script>
@@ -109,6 +110,48 @@
             topkParaVec(node, k, ".box1");
             topkDeepWalk(node, k, ".box2");
         }
+    }
+
+    function compare(node1, node2) {
+        var nodeArgs = node1 + ";" + node2;
+        d3.json("http://v122.de:8080/deepWalk/compare?nodeA=" + node1 +"&nodeB=" + node2).then(function (json) {
+            document.getElementById("log2").innerHTML = "Similarity: " + json.similar[0].sim;
+        });
+        d3.json("http://v122.de:8080/paragraphVectors/compare?nodeA=" + node1 +"&nodeB=" + node2).then(function (json) {
+            document.getElementById("log1").innerHTML = "Similarity: " + json.similar[0].sim;
+        });
+        d3.json("http://v122.de:8080/deepWalk/getFriends?label=" + nodeArgs).then(function (json) {
+            var n = [];
+            var e = [];
+            n.push({id:node1, type:"main"});
+            n.push({id:node2, type:"main"});
+            json[0].friends.forEach(function (l) {
+                if(!n.map(function (value) { return value.id }).includes(l)) n.push({id:l, type: "outer"});
+                e.push({source: node1, target: l});
+            });
+            json[1].friends.forEach(function (l) {
+                if(!n.map(function (value) { return value.id }).includes(l)) n.push({id:l, type: "outer"});
+                e.push({source: node2, target: l});
+            });
+            var graph = {nodes: n, links: e};
+            loadLocalGraph(graph, ".box2");
+        });
+        d3.json("http://v122.de:8080/paragraphVectors/getFeats?label=" + nodeArgs).then(function (json) {
+            var n = [];
+            var e = [];
+            n.push({id:node1, type:"main"});
+            n.push({id:node2, type:"main"});
+            json[0].feats.forEach(function (l) {
+                if(!n.map(function (value) { return value.id }).includes(l)) n.push({id:l, type: "outer"});
+                e.push({source: node1, target: l});
+            });
+            json[1].feats.forEach(function (l) {
+                if(!n.map(function (value) { return value.id }).includes(l)) n.push({id:l, type: "outer"});
+                e.push({source: node2, target: l});
+            });
+            var graph = {nodes: n, links: e};
+            loadLocalGraph(graph, ".box1");
+        });
     }
 
     function topkDeepWalk(id, k, div){
@@ -282,7 +325,7 @@
         }
     }
 
-    function loadGlobalGraph(div, path) {
+    function loadGlobalGraph(div, path, log) {
         var vectorNodes = [];
         var isSelected = null;
 
@@ -340,28 +383,23 @@
                     return colorScale(d.z);
                 })
                 .attr("stroke","white")
-                // .on("mouseover", function(d) {
-                //     d3.select(".log")
-                //         .html(d.id + "<br/>"  + d.x + ", " + d.y + ", " + d.z);
-                //     d3.selectAll("#c"+d.id).transition().attr("r",function (d) {
-                //         return zScale(d.z)+10;
-                //     });
-                // })
-                // .on("mouseout", function(d) {
-                //     if(isSelected !== d.id){
-                //         d3.select(".log")
-                //             .html("<br/>");
-                //         d3.selectAll("#c"+d.id).transition().attr("r", function (d) {
-                //             return zScale(d.z);
-                //         });
-                //     }
-                // })
+                .on("mouseover", function(d) {
+                    document.getElementById(log).innerHTML = d.id + "<br/>"  + d.x + ", " + d.y + ", " + d.z;
+                    d3.selectAll("#c"+d.id).transition().attr("r",function (d) {
+                        return zScale(d.z)+10;
+                    });
+                })
+                .on("mouseout", function(d) {
+                    if(isSelected !== d.id){
+                        d3.selectAll("#c"+d.id).transition().attr("r", function (d) {
+                            return zScale(d.z);
+                        });
+                    }
+                })
                 .on("click", function(d) {
                     if(isSelected != null) {
                         if(isSelected === d.id) {
                             d3.selectAll("#c"+d.id).attr("fill", colorScale(d.z));
-                            d3.select(".log")
-                                .html("<br/>");
                             isSelected = null;
                         } else {
                             d3.selectAll(".c"+isSelected).attr("fill", colorScale(d.z));
@@ -392,7 +430,9 @@
             throw e;
         });
     }
-    //loadGlobalGraph(".box1", "../twitter-prepro/paraVec-3-25.pv");
-    //loadGlobalGraph(".box2", "../twitter-prepro/deepWalk-400-200-3.dw");
+
+    //compare("12831", "761");
+    loadGlobalGraph(".box1", "paraVec-3-25.pv", "log1");
+    loadGlobalGraph(".box2", "deepWalk-400-200-3.dw", "log2");
 </script>
 </html>

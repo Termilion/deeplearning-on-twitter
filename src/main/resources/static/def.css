@@ -1,11 +1,11 @@
-.box1 {
+.box1main {
      float: left;
      padding: 20px;
      background: #f9f9f9;
      width: 50%;
      height: 500px;
 }
-.box2 {
+.box2main {
      float: left;
      padding: 20px;
      background: #f9f9f9;
