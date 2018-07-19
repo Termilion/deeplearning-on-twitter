@@ -13,7 +13,9 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.xml.crypto.dsig.Transform;
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
 import java.net.URLDecoder;
 import java.util.*;
 
@@ -58,19 +60,21 @@ public class PVController {
         for(String l : labels) {
             JSONObject entry = new JSONObject();
             entry.put("label",l);
-            String featFile = sm.outDir+"/preVectors/"+label;
+            JSONArray featArr = new JSONArray();
+            String featFile = sm.outDir+"/preVectors/"+l;
             try (BufferedReader br = new BufferedReader(new FileReader(featFile))) {
                 String line;
-                JSONArray featArr = new JSONArray();
                 while ((line = br.readLine()) != null) {
                     for(String feat : line.split(" ")) {
                         featArr.add(feat);
                     }
                 }
-                entry.put("feats",featArr);
-            } catch (Exception e) {
+            } catch (FileNotFoundException file) {
+
+            } catch (IOException ioe) {
 
             }
+            entry.put("feats",featArr);
             ret.add(entry);
         }
 
