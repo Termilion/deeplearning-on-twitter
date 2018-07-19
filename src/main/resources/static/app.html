@@ -48,6 +48,11 @@
         <input id="kInput" type="text" class="form-control" placeholder="number of k" name="s" value="5">
         <!-- <button id="sourceList" type="button" class="btn btn-primary btn-lg">Large button</button> -->
     </div>
+    <div style="display: none;" class="form-group col-md-5 d3">
+        <label for="max">Maximum Number of Nodes</label>
+        <input id="max" type="text" class="form-control" placeholder="max node number" name="s" value="1000">
+        <!-- <button id="sourceList" type="button" class="btn btn-primary btn-lg">Large button</button> -->
+    </div>
 </form>
 <div class="box1main">
     <p>PargraphVector</p>
@@ -73,6 +78,7 @@
     var inputNodeA = document.getElementById("nodeId");
     var inputNodeB = document.getElementById("nodeId2");
     var inputKInput = document.getElementById("kInput");
+    var inputmax = document.getElementById("max");
 
     inputNodeA.addEventListener("keyup", function(event) {
       event.preventDefault();
@@ -88,6 +94,13 @@
       }
     });
 
+    inputmax.addEventListener("keyup", function(event) {
+        event.preventDefault();
+        if (event.keyCode === 13) {
+            change_action();
+        }
+    });
+
     inputKInput.addEventListener("keyup", function(event) {
       event.preventDefault();
       if (event.keyCode === 13) {
@@ -100,6 +113,7 @@
         if (action === "CompareTo") {
             console.log("CompareTo");
             $('.d2').css('display', 'none');
+            $('.d3').css('display', 'none');
             $('.d1').css('display', 'block');
             document.getElementById("b1").innerHTML = "";
             document.getElementById("b2").innerHTML = "";
@@ -112,15 +126,18 @@
             console.log("GolbalView");
             $('.d1').css('display', 'none');
             $('.d2').css('display', 'none');
+            $('.d3').css('display', 'block');
             document.getElementById("b1").innerHTML = "";
             document.getElementById("b2").innerHTML = "";
             document.getElementById("log1").innerHTML = "";
             document.getElementById("log2").innerHTML = "";
-            loadGlobalGraph(".box1", "paraVec-3-25.pv", "log1");
-            loadGlobalGraph(".box2", "deepWalk-400-200-3.dw", "log2");
+            var max = document.getElementById('max').value;
+            loadGlobalGraph(".box1", "paraVec-3-25.pv", "log1", max);
+            loadGlobalGraph(".box2", "deepWalk-400-200-3.dw", "log2", max);
         } else {
             console.log("kTop");
             $('.d1').css('display', 'none');
+            $('.d3').css('display', 'none');
             $('.d2').css('display', 'block');
             document.getElementById("b1").innerHTML = "";
             document.getElementById("b2").innerHTML = "";
@@ -391,10 +408,9 @@
         }
     }
 
-    function loadGlobalGraph(div, path, log) {
+    function loadGlobalGraph(div, path, log, max) {
         var vectorNodes = [];
         var isSelected = null;
-
         var svg = d3.select(div)
             .append("svg")
             .attr("width", w)
@@ -402,10 +418,13 @@
 
         d3.text(path).then(function (d) {
             var vectors = d.split("\n");
-            vectors.forEach(function (vec) {
+            max = Math.min(vectors.length, max);
+            var i;
+            for(i = 0; i < max; i++){
+                var vec = vectors[i];
                 var values = vec.split("\t");
                 if(values.length >= 4) vectorNodes.push({id: values[0], x: values[1], y: values[2], z: values[3]});
-            });
+            }
             var xmax = Math.max.apply(Math, vectorNodes.map(function(d){return d.x;}));
             var ymax = Math.max.apply(Math, vectorNodes.map(function(d){return d.y;}));
             var zmax = Math.max.apply(Math, vectorNodes.map(function(d){return d.z;}));
