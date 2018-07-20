@@ -17,10 +17,14 @@ public class GraphGenerator {
     private Logger log = Logger.getLogger("core.GraphGenerator");
     private Graph<String, String> graph;
 
+    /**
+     * load Twitter graph
+     * @param edges
+     * @param vertices
+     * @param labelToIdMap
+     */
     public GraphGenerator(File edges, List<Vertex<String>> vertices, Map<String,Integer> labelToIdMap) {
         log.info("loading graph");
-
-//        Graph<String, String>
         graph = new Graph<>(vertices);
         log.info("initialized graph with "+vertices.size()+" vertices");
 

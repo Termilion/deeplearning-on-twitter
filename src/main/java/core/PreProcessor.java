@@ -97,6 +97,7 @@ public class PreProcessor {
 
             }
 
+            // Write preprocessed paragraph files
             for (String key : combinedReducedFeatsMap.keySet()) {
                 try (FileWriter fw = new FileWriter(out + "preVectors/" + key)) {
                     List<String> sort = new ArrayList<>(combinedReducedFeatsMap.get(key));
@@ -114,9 +115,8 @@ public class PreProcessor {
             log.info("skip preprocessing feats");
         }
 
-        /**
-         * Vertices PrePro
-         */
+
+        // Vertices PrePro
         Set<String> verticesLabelSet = new HashSet<>();
         File vertFile = new File(out+"combined_vertices");
         if(!vertFile.exists()) {
@@ -142,18 +142,12 @@ public class PreProcessor {
             }
         }
 
+
+        // Generate vertices and label to id map
         List<String> verticesLabelList  = new ArrayList<>(verticesLabelSet);
         Collections.sort(verticesLabelList);
         int idx = 0;
         for(String vertexLabel : verticesLabelList) {
-//            if(!new File(out + "preVectors/"+vertexLabel).exists()) {
-//                try {
-//                    new File(out + "preVectors/"+vertexLabel).createNewFile();
-//                } catch (IOException ioe) {
-//                    Logger.getGlobal().warning("Cant create empty preVectors file");
-//                }
-//
-//            }
             labelToIdMap.put(vertexLabel, idx);
             verticesList.add(new Vertex<>(idx++, vertexLabel));
         }

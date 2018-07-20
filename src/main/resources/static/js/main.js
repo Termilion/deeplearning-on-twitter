@@ -116,14 +116,14 @@ function actionkTop(){
 function compare(node1, node2) {
     // build the REST query parameter to query for the similarity of the chosen nodes
     var nodeArgs = node1 + ";" + node2;
-    d3.json("http://v122.de:8080/deepWalk/compare?nodeA=" + node1 +"&nodeB=" + node2).then(function (json) {
+    d3.json("deepWalk/compare?nodeA=" + node1 +"&nodeB=" + node2).then(function (json) {
         document.getElementById("log2").innerHTML = "<strong>Similarity: </strong>" + json.similar[0].sim;
     });
-    d3.json("http://v122.de:8080/paragraphVectors/compare?nodeA=" + node1 +"&nodeB=" + node2).then(function (json) {
+    d3.json("paragraphVectors/compare?nodeA=" + node1 +"&nodeB=" + node2).then(function (json) {
         document.getElementById("log1").innerHTML = "<strong>Similarity: </strong>" + json.similar[0].sim;
     });
     // Execute REST query for the DeepWalk features
-    d3.json("http://v122.de:8080/deepWalk/getFriends?label=" + nodeArgs).then(function (json) {
+    d3.json("deepWalk/getFriends?label=" + nodeArgs).then(function (json) {
         var n = []; // nodes
         var e = []; // edges
 
@@ -156,7 +156,7 @@ function compare(node1, node2) {
     });
 
     // Execute REST query for the DeepWalk features
-    d3.json("http://v122.de:8080/paragraphVectors/getFeats?label=" + nodeArgs).then(function (json) {
+    d3.json("paragraphVectors/getFeats?label=" + nodeArgs).then(function (json) {
         var n = []; // nodes
         var e = []; // edges
 
@@ -208,7 +208,7 @@ function sortByType(n) {
 // show top k nodes in the deepwalk embedding
 function topkDeepWalk(id, k, div){
     // REST query for the top k similar nodes
-    d3.json("http://v122.de:8080/deepWalk/topK?label="+ id +"&k="+ k).then(function (json) {
+    d3.json("deepWalk/topK?label="+ id +"&k="+ k).then(function (json) {
         var topKNodes = json.similar;
         var mainNode = json.selection;
         topKNodes.push({label: json.selection, sim: 1});
@@ -220,7 +220,7 @@ function topkDeepWalk(id, k, div){
         });
 
         // REST query for the features of the top k nodes
-        d3.json("http://v122.de:8080/deepWalk/getFriends?label=" + nodeArgs).then(function (friends) {
+        d3.json("deepWalk/getFriends?label=" + nodeArgs).then(function (friends) {
             var n = []; // nodes
             var e = []; // edges
             friends.forEach(function (v) {
@@ -246,7 +246,7 @@ function topkDeepWalk(id, k, div){
 // show top k nodes in the paragraphVector embedding
 function topkParaVec(id, k, div){
     // REST query for the top k similar nodes
-    d3.json("http://v122.de:8080/paragraphVectors/topK?label="+ id +"&k="+ k).then(function (json) {
+    d3.json("paragraphVectors/topK?label="+ id +"&k="+ k).then(function (json) {
         var topKNodes = json.similar.map(function (d) {
             return {id: d.label, sim: d.sim, type: "node"}
         });
@@ -259,7 +259,7 @@ function topkParaVec(id, k, div){
             nodeArgs = nodeArgs + d.id + ";";
         });
         // REST query for the features of the top k nodes
-        d3.json("http://v122.de:8080/paragraphVectors/getFeats?label=" + nodeArgs).then(function (feats) {
+        d3.json("paragraphVectors/getFeats?label=" + nodeArgs).then(function (feats) {
             var n = []; // nodes
             var e = []; // edges
             feats.forEach(function (v) {
@@ -493,7 +493,7 @@ function loadGlobalGraph(div, path, log, max) {
             .attr("stroke","white")
             .on("mouseover", function(d) {
                 //ON MOUSEOVER: show label and coords in log
-                d3.json("http://v122.de:8080/graph/getLabel?id=" + d.id).then( function (jlabel) {
+                d3.json("graph/getLabel?id=" + d.id).then( function (jlabel) {
                      document.getElementById(log).innerHTML = "<strong>Label: </strong>"+jlabel.label+"<br/>"+"<strong>x: </strong>"+d.x + "<strong> y :</strong>"+ d.y+"<strong> z :</strong>"+d.z;
                 });
                 // make hovered node bigger

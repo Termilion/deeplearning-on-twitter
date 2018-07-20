@@ -21,10 +21,13 @@ import java.io.IOException;
 import java.util.*;
 import java.util.logging.Logger;
 
+/**
+ * In memory storage for loaded ParagraphVectors and DeepWalk
+ */
 public class SingeltonMemory {
 
     private PreProcessor preProcessor;
-    private GraphGenerator gem;
+    private GraphGenerator graphGenerator;
     private Graph<String, String> graph;
     private ParagraphVectors paraVec;
     private GraphVectors deepWalk;
@@ -32,6 +35,7 @@ public class SingeltonMemory {
     Map<Integer, String> idToLabelMap;
 
     String outDir;
+
 
     private static SingeltonMemory instance;
     private SingeltonMemory () {}
@@ -42,12 +46,21 @@ public class SingeltonMemory {
         return SingeltonMemory.instance;
     }
 
-    public void init(String twitterDir, String outDir, File edgesFile) {
+
+    /**
+     * In-Memory store init
+     */
+    public void init(String twitterDir, String outDir, File edgesFile, int dw_walkLength, int dw_windowSize, int pv_windowSize) {
+
+        // Store and init Instances for ReST access
         this.outDir = outDir;
         preProcessor = new PreProcessor(twitterDir, outDir, edgesFile);
         labelToIdMap = preProcessor.getLabelToIdMap();
-        gem = new GraphGenerator(edgesFile, preProcessor.getVertices(), preProcessor.getLabelToIdMap());
-        graph = gem.getGraph();
+        graphGenerator = new GraphGenerator(edgesFile, preProcessor.getVertices(), preProcessor.getLabelToIdMap());
+        graph = graphGenerator.getGraph();
+
+        int dw_vectorSize = 3;
+        int pv_layerSize = 3; // Test mit 20/50/100
 
         // Knoten die keine ausgehenden Kanten besitzen müssen auf sich selbst zeigen um Fehlern vorzubeugen
         int i = 0;
@@ -59,17 +72,13 @@ public class SingeltonMemory {
                 i++;
             }
         }
-
-        int dw_walkLength = 8;
-        int dw_windowSize = 4;
-        int dw_vectorSize = 3;
-        int pv_layerSize = 3; // Test mit 20/50/100
-        int pv_windowSize = 25; // = Wortzahl
-
         Logger.getGlobal().info("added " + i + "reflective edges");
 
+        // Init PV and DW output files
         String pvFile = outDir + "paraVec-" + pv_layerSize + "-" + pv_windowSize + ".pv";
         String dwFile = outDir + "deepWalk-" + dw_walkLength + "-" + dw_windowSize + "-" + dw_vectorSize + ".dw";
+
+        // if persist then load from files
         if (new File(pvFile).exists() && new File(dwFile).exists()) {
             try {
                 paraVec = WordVectorSerializer.readParagraphVectors(pvFile);
@@ -79,7 +88,7 @@ public class SingeltonMemory {
             } catch (IOException ioe) {
                 ioe.printStackTrace();
             }
-
+        // else generate and init new DW and PV
         } else {
 
 
@@ -108,11 +117,11 @@ public class SingeltonMemory {
 
                 paraVec.fit();
 
+                //persist PV to own file for global view
                 try (FileWriter fw = new FileWriter(pvFile+".default")) {
                     for(String lab : labelToIdMap.keySet()) {
                         INDArray indArray = paraVec.lookupTable().vector(lab);
                         Logger.getGlobal().info("write "+lab);
-                        System.out.println(lab);
                             try {
                                 fw.write(labelToIdMap.get(lab)+
                                         "\t"+indArray.getDouble(0)+
@@ -133,7 +142,7 @@ public class SingeltonMemory {
                     e.printStackTrace();
                 }
 
-                // persist
+                // persist DW and PV with DeepLearning4j
                 WordVectorSerializer.writeParagraphVectors(paraVec, pvFile);
                 GraphVectorSerializer.writeGraphVectors(dw, dwFile);
             } catch (IOException e) {
@@ -161,7 +170,4 @@ public class SingeltonMemory {
         return deepWalk;
     }
 
-    public Map<String,Integer> getLabelToIdMap() {
-        return labelToIdMap;
-    }
 }

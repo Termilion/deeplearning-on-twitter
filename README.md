@@ -36,9 +36,6 @@ cd Deep-Walk-4J
 wget https://snap.stanford.edu/data/twitter.tar.gz
 tar xzf twitter.tar.gz
 
-wget https://snap.stanford.edu/data/twitter.tar.gz
-tar xzf twitter.tar.gz
-
 wget https://snap.stanford.edu/data/twitter_combined.txt.gz
 gunzip twitter_combined.txt.gz
 

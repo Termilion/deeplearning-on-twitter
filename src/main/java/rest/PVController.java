@@ -19,6 +19,9 @@ import java.io.IOException;
 import java.net.URLDecoder;
 import java.util.*;
 
+/**
+ * Rest controller for PV
+ */
 @RestController
 @RequestMapping("/paragraphVectors")
 public class PVController {

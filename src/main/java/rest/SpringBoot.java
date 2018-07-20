@@ -2,6 +2,8 @@ package rest;
 import java.io.File;
 import java.util.Arrays;
 
+import core.Cli;
+import org.apache.commons.cli.CommandLine;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -13,22 +15,45 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 import static springfox.documentation.builders.PathSelectors.regex;
 
-
+/**
+ * Main class
+ */
 @SpringBootApplication
 @EnableSwagger2
 public class SpringBoot {
 
     public static void main(String[] args) {
 
-
+        // Memory Storage
         SingeltonMemory sm = SingeltonMemory.getInstance();
 
+        // Default DeepWalk and ParagraphVector parameters. dw_vectorSize, pw_layerSize = 3
+        int dw_walkLength = 10;
+        int dw_windowSize = 5;
+        int pv_windowSize = 25; // = Wortzahl
 
-        String twitterDir = args[0]+"/";
-        String outDir = args[1]+"/";
-        File edgesFile = new File(args[2]);
 
-        sm.init(twitterDir, outDir, edgesFile);
+        CommandLine commandLine = Cli.getCommandLine(args);
+
+        String twitterDir = commandLine.getOptionValue("i") + "/";
+        String outDir = commandLine.getOptionValue("o") + "/";
+        File edgesFile = new File(commandLine.getOptionValue("e"));
+        if(commandLine.hasOption("deepwalk")) {
+            String[] split = commandLine.getOptionValue("deepwalk").split(",");
+            dw_windowSize = Integer.parseInt(split[0]);
+            dw_walkLength = Integer.parseInt(split[1]);
+        }
+
+        if(commandLine.hasOption("pre-vec")) {
+            pv_windowSize = Integer.parseInt(commandLine.getOptionValue("par-vec"));
+        }
+
+        if(!edgesFile.exists()) {
+            System.err.println("Edges file not found");
+            System.exit(0);
+        }
+
+        sm.init(twitterDir, outDir, edgesFile, dw_walkLength, dw_windowSize, pv_windowSize);
         SpringApplication.run(SpringBoot.class, args);
     }
 
@@ -41,6 +66,10 @@ public class SpringBoot {
                 .build();
     }
 
+    /**
+     * Information about provided ReST api.
+     * @return
+     */
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder().title("Twitter Graph DeepLearning").
                 description("Rest Api für das Abfragen von DeepWalk and Paragraph-Vector basierten Graph Embeddings.\n" +

@@ -16,6 +16,9 @@ import java.net.URLDecoder;
 import java.util.*;
 
 
+/**
+ * Rest Controller for DW
+ */
 @RestController
 @RequestMapping("/deepWalk")
 public class DWController {

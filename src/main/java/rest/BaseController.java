@@ -6,11 +6,12 @@ import org.json.simple.JSONObject;
 import org.mortbay.util.ajax.JSON;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * Base graph controller
+ */
 @RestController
 @RequestMapping("/graph")
 public class BaseController {
-
-
 
     @CrossOrigin
     @ApiOperation(value = "ID Reqeust")
