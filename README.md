@@ -30,8 +30,8 @@ Wählen sie eine der 3 Actionen:
 ## Installation
 
 ```
-git clone https://github.com/Termilion/Deep-Walk-4J.git
-cd Deep-Walk-4J
+git clone https://github.com/Termilion/deeplearning-on-twitter.git
+cd deeplearning-on-twitter
 
 wget https://snap.stanford.edu/data/twitter.tar.gz
 tar xzf twitter.tar.gz
