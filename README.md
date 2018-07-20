@@ -40,7 +40,7 @@ wget https://snap.stanford.edu/data/twitter_combined.txt.gz
 gunzip twitter_combined.txt.gz
 
 mvn package
-java -jar target/*.jar twitter/ persist/ twitter_combined.txt
+java -jar target/*.jar -i twitter -o persist -e twitter_combined.txt
 
 ```
 
