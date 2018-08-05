@@ -41,7 +41,7 @@ gunzip twitter_combined.txt.gz
 
 cd ../
 mvn package
-java -jar target/*.jar -i data/twitter -o data -e data/twitter_combined.txt --deepwalk 400,200 ----par-vec 25
+java -jar target/*.jar -i data/twitter -o data -e data/twitter_combined.txt --deepwalk 400,200 --par-vec 25
 
 ```
 
