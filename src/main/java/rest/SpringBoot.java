@@ -1,12 +1,17 @@
 package rest;
 import java.io.File;
 import java.util.Arrays;
+import java.util.logging.Logger;
 
 import core.Cli;
 import org.apache.commons.cli.CommandLine;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.service.ApiInfo;
 import springfox.documentation.spi.DocumentationType;
@@ -20,7 +25,7 @@ import static springfox.documentation.builders.PathSelectors.regex;
  */
 @SpringBootApplication
 @EnableSwagger2
-public class SpringBoot {
+public class SpringBoot  extends  WebMvcConfigurerAdapter{
 
     public static void main(String[] args) {
 
@@ -28,20 +33,21 @@ public class SpringBoot {
         SingeltonMemory sm = SingeltonMemory.getInstance();
 
         // Default DeepWalk and ParagraphVector parameters. dw_vectorSize, pw_layerSize = 3
-        int dw_walkLength = 10;
-        int dw_windowSize = 5;
+        int dw_walkLength = 25;
+        int dw_windowSize = 10;
         int pv_windowSize = 25; // = Wortzahl
-
 
         CommandLine commandLine = Cli.getCommandLine(args);
 
         String twitterDir = commandLine.getOptionValue("i") + "/";
         String outDir = commandLine.getOptionValue("o") + "/";
+        new File(outDir+"csv").mkdirs();
+
         File edgesFile = new File(commandLine.getOptionValue("e"));
         if(commandLine.hasOption("deepwalk")) {
             String[] split = commandLine.getOptionValue("deepwalk").split(",");
-            dw_windowSize = Integer.parseInt(split[0]);
-            dw_walkLength = Integer.parseInt(split[1]);
+            dw_windowSize = Integer.parseInt(split[1]);
+            dw_walkLength = Integer.parseInt(split[0]);
         }
 
         if(commandLine.hasOption("pre-vec")) {
@@ -54,7 +60,14 @@ public class SpringBoot {
         }
 
         sm.init(twitterDir, outDir, edgesFile, dw_walkLength, dw_windowSize, pv_windowSize);
+
         SpringApplication.run(SpringBoot.class, args);
+    }
+
+    @Override
+    public void addResourceHandlers (ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/vectors/**").
+                addResourceLocations("file:"+SingeltonMemory.getInstance().outDir+"csv/");
     }
 
     @Bean

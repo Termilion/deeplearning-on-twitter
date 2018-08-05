@@ -40,4 +40,25 @@ public class BaseController {
         ret.put("id",id);
         return ret.toJSONString();
     }
+
+    @CrossOrigin
+    @ApiOperation(value = "DW and PV info")
+    @RequestMapping(value = "getVectorInfo", method = RequestMethod.GET, produces = "application/json")
+    public String getVectorInfo(
+    ) {
+        SingeltonMemory sm = SingeltonMemory.getInstance();
+
+        JSONObject ret = new JSONObject();
+
+        JSONObject dw = new JSONObject();
+        dw.put("walkLength",sm.dw_walkLength);
+        dw.put("windowSize",sm.dw_windowSize);
+        ret.put("deepWalk",dw);
+
+        JSONObject pv = new JSONObject();
+        pv.put("windowSize",sm.pv_windowSize);
+        ret.put("paragraphVectors",pv);
+
+        return ret.toJSONString();
+    }
 }

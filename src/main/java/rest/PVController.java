@@ -64,7 +64,7 @@ public class PVController {
             JSONObject entry = new JSONObject();
             entry.put("label",l);
             JSONArray featArr = new JSONArray();
-            String featFile = sm.outDir+"/preVectors/"+l;
+            String featFile = sm.outDir+"/features/"+l;
             try (BufferedReader br = new BufferedReader(new FileReader(featFile))) {
                 String line;
                 while ((line = br.readLine()) != null) {

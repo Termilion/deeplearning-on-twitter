@@ -14,6 +14,7 @@ import org.deeplearning4j.models.paragraphvectors.ParagraphVectors;
 import org.deeplearning4j.text.tokenization.tokenizerfactory.DefaultTokenizerFactory;
 import org.deeplearning4j.text.tokenization.tokenizerfactory.TokenizerFactory;
 import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.ops.transforms.Transforms;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -34,6 +35,12 @@ public class SingeltonMemory {
     Map<String, Integer> labelToIdMap;
     Map<Integer, String> idToLabelMap;
 
+    private int dw_vectorSize = 3;
+    private int pv_layerSize = 3;
+    public int dw_walkLength;
+    public int dw_windowSize;
+    public int pv_windowSize;
+
     String outDir;
 
 
@@ -50,7 +57,11 @@ public class SingeltonMemory {
     /**
      * In-Memory store init
      */
-    public void init(String twitterDir, String outDir, File edgesFile, int dw_walkLength, int dw_windowSize, int pv_windowSize) {
+    public void init(String twitterDir, String outDir, File edgesFile, int dw_walkLengthInit, int dw_windowSizeInit, int pv_windowSizeInit) {
+
+        dw_walkLength = dw_walkLengthInit;
+        dw_windowSize = dw_windowSizeInit;
+        pv_windowSize = pv_windowSizeInit;
 
         // Store and init Instances for ReST access
         this.outDir = outDir;
@@ -58,9 +69,6 @@ public class SingeltonMemory {
         labelToIdMap = preProcessor.getLabelToIdMap();
         graphGenerator = new GraphGenerator(edgesFile, preProcessor.getVertices(), preProcessor.getLabelToIdMap());
         graph = graphGenerator.getGraph();
-
-        int dw_vectorSize = 3;
-        int pv_layerSize = 3; // Test mit 20/50/100
 
         // Knoten die keine ausgehenden Kanten besitzen müssen auf sich selbst zeigen um Fehlern vorzubeugen
         int i = 0;
@@ -72,26 +80,24 @@ public class SingeltonMemory {
                 i++;
             }
         }
-        Logger.getGlobal().info("added " + i + "reflective edges");
+        Logger.getGlobal().info("added " + i + " reflective edges");
 
         // Init PV and DW output files
-        String pvFile = outDir + "paraVec-" + pv_layerSize + "-" + pv_windowSize + ".pv";
-        String dwFile = outDir + "deepWalk-" + dw_walkLength + "-" + dw_windowSize + "-" + dw_vectorSize + ".dw";
+        String pvFile = outDir + "paragraphVectors/paraVec-" + pv_layerSize + "-" + pv_windowSize + ".pv";
+        new File(outDir + "paragraphVectors/").mkdirs();
+        String pvCsvFile = outDir + "csv/paraVec-" + pv_layerSize + "-" + pv_windowSize + ".pv";
+        String dwFile = outDir + "csv/deepWalk-" + dw_walkLength + "-" + dw_windowSize + "-" + dw_vectorSize + ".dw";
 
-        // if persist then load from files
-        if (new File(pvFile).exists() && new File(dwFile).exists()) {
+        // if deepWalk persist then load from files
+        if ( new File(dwFile).exists() ) {
             try {
-                paraVec = WordVectorSerializer.readParagraphVectors(pvFile);
-                Logger.getGlobal().info("loaded dw from file");
+                Logger.getGlobal().info("load DeepWalk from file");
                 deepWalk = GraphVectorSerializer.loadTxtVectors(new File(dwFile));
-                Logger.getGlobal().info("loaded pv from file");
             } catch (IOException ioe) {
                 ioe.printStackTrace();
             }
-        // else generate and init new DW and PV
+        // else generate and init new deepwalk
         } else {
-
-
             // walking deep
             Logger.getGlobal().info("init DeepWalk");
             DeepWalk dw = new DeepWalk.Builder().windowSize(dw_windowSize).vectorSize(dw_vectorSize).learningRate(0.001).build();
@@ -99,12 +105,28 @@ public class SingeltonMemory {
             dw.fit(graph, dw_walkLength);
 
             deepWalk = dw;
+            try{
+                GraphVectorSerializer.writeGraphVectors(dw, dwFile);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
 
-            Logger.getGlobal().info("init ParagraphsVectors");
+        // if paragraphVectors persist then load from files
+        if ( new File(pvFile).exists() && new File(pvCsvFile).exists() ) {
             try {
+                Logger.getGlobal().info("load ParagraphsVectors from file");
+                paraVec = WordVectorSerializer.readParagraphVectors(pvFile);
+            } catch (IOException ioe) {
+                ioe.printStackTrace();
+            }
+            // else generate and init new PV
+        } else {
+            Logger.getGlobal().info("init ParagraphsVectors");
+
                 TokenizerFactory tokenizer = new DefaultTokenizerFactory();
                 CustomLabelAwareFileSentenceIterator iterator =
-                        new CustomLabelAwareFileSentenceIterator(new File(outDir + "preVectors/"));
+                        new CustomLabelAwareFileSentenceIterator(new File(outDir + "features/"));
 
                 // load paragraph vectors
                 paraVec = new ParagraphVectors.Builder()
@@ -117,37 +139,34 @@ public class SingeltonMemory {
 
                 paraVec.fit();
 
-                //persist PV to own file for global view
-                try (FileWriter fw = new FileWriter(pvFile+".default")) {
-                    for(String lab : labelToIdMap.keySet()) {
-                        INDArray indArray = paraVec.lookupTable().vector(lab);
-                        Logger.getGlobal().info("write "+lab);
-                            try {
-                                fw.write(labelToIdMap.get(lab)+
-                                        "\t"+indArray.getDouble(0)+
-                                        "\t"+indArray.getDouble(1)+
-                                        "\t"+indArray.getDouble(2)
-                                        +"\n");
-                                fw.flush();
-                            } catch (NullPointerException npm) {
-                                fw.write(labelToIdMap.get(lab)
-                                        +"\t0"
-                                        +"\t0"
-                                        +"\t0"
-                                        +"\n");
-                                fw.flush();
-                            }
-                        }
+                // persist ParagraphsVectors for global view
+
+                HashMap<Integer,String> entryMap = new HashMap<>();
+
+                for(String lab : labelToIdMap.keySet()) {
+                    INDArray indArray = paraVec.lookupTable().vector(lab);
+                    try {
+                        entryMap.put(labelToIdMap.get(lab),indArray.getDouble(0)+ "\t"+indArray.getDouble(1)+ "\t"+indArray.getDouble(2) +"\n");
+                    } catch (NullPointerException npm) {
+                        entryMap.put(labelToIdMap.get(lab), "0"+"\t0" +"\t0" +"\n");
+                    }
+                }
+
+                List<Map.Entry<Integer,String>> sortList= new ArrayList<>(entryMap.entrySet());
+                sortList.sort(Map.Entry.comparingByKey());
+                Logger.getGlobal().info("sorted");
+                try (FileWriter fw = new FileWriter(pvCsvFile)) {
+                    for(Map.Entry<Integer,String> entry : sortList) {
+                        Logger.getGlobal().info(entry.getKey()+"\t"+entry.getValue());
+                        fw.write(entry.getKey()+"\t"+entry.getValue() );
+                    }
+                    fw.flush();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
 
-                // persist DW and PV with DeepLearning4j
+                // persist PV with DeepLearning4j
                 WordVectorSerializer.writeParagraphVectors(paraVec, pvFile);
-                GraphVectorSerializer.writeGraphVectors(dw, dwFile);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
         }
 
         idToLabelMap = new HashMap<>();

@@ -36,11 +36,11 @@ public class Cli{
             options.addOption(null,
                     "deepwalk",
                     true,
-                    "windowsize,walklenght (default 400,200) DONT USE: Will not change global view files");
+                    "walklenght,windowsize (default 16,8) ");
             options.addOption(null,
                     "par-vec",
                     true,
-                    "windowsize (default 25) DONT USE: Will not change global view files");
+                    "windowsize (default 25) ");
             options.addRequiredOption("e",
                     "edges",
                     true,

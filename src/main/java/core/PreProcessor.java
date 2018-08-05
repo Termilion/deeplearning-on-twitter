@@ -17,7 +17,7 @@ public class PreProcessor {
     Map<String, Set<String>> combinedReducedFeatsMap = new HashMap();
 
     public PreProcessor(String in, String out, File edges) {
-        if( !new File(out+"preVectors/").exists()) {
+        if( !new File(out+"features/").exists()) {
             log.info("pre processing data");
             File inFolder = new File(in);
             String[] egofeatFiles = inFolder.list(new FilenameFilter() {
@@ -28,7 +28,7 @@ public class PreProcessor {
             });
             log.info("find egofeats");
 
-            File featDir = new File(out + "preVectors/");
+            File featDir = new File(out + "features/");
             if (false == featDir.exists() && false == featDir.mkdirs()) {
                 System.err.println("Was not able to create directories: " + featDir);
             }
@@ -99,7 +99,7 @@ public class PreProcessor {
 
             // Write preprocessed paragraph files
             for (String key : combinedReducedFeatsMap.keySet()) {
-                try (FileWriter fw = new FileWriter(out + "preVectors/" + key)) {
+                try (FileWriter fw = new FileWriter(out + "features/" + key)) {
                     List<String> sort = new ArrayList<>(combinedReducedFeatsMap.get(key));
                     Collections.sort(sort);
                     fw.write(String.join(" ", sort));

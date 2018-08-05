@@ -81,8 +81,11 @@ function change_action() {
         document.getElementById("log1").innerHTML = "";
         document.getElementById("log2").innerHTML = "";
         var max = document.getElementById('max').value;
-        loadGlobalGraph(".box1", "paraVec-3-25.pv", "log1", max);
-        loadGlobalGraph(".box2", "deepWalk-400-200-3.dw", "log2", max);
+
+        d3.json("graph/getVectorInfo").then(function (json) {
+            loadGlobalGraph(".box1", "vectors/paraVec-3-"+json.paragraphVectors.windowSize+".pv", "log1", max);
+            loadGlobalGraph(".box2", "vectors/deepWalk-"+json.deepWalk.walkLength+"-"+json.deepWalk.windowSize+"-3.dw", "log2", max);
+        });
 
     // KTOP ACTION:
     // displays local view of the chosen node with the chosen number of nearest node,
