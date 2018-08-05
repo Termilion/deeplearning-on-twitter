@@ -34,14 +34,14 @@ git clone https://github.com/Termilion/deeplearning-on-twitter.git
 cd deeplearning-on-twitter
 
 cd data/
-wget https://snap.stanford.edu/data/twitter.tar.gz -P 
+wget https://snap.stanford.edu/data/twitter.tar.gz
 tar xzf twitter.tar.gz
 wget https://snap.stanford.edu/data/twitter_combined.txt.gz
 gunzip twitter_combined.txt.gz
 
 cd ../
 mvn package
-java -jar target/*.jar -i data/twitter -o data -e data/twitter_combined.txt
+java -jar target/*.jar -i data/twitter -o data -e data/twitter_combined.txt --deepwalk 400,200
 
 ```
 
