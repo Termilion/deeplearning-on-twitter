@@ -1,5 +1,5 @@
-twitter/
-twitter-prepro/
+data/twitter/
+data/features/
+data/paragraphVectors/
 .idea/
-twitter_combined.txt
 ./.idea/
