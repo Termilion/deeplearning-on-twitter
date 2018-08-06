@@ -21,12 +21,18 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 import static springfox.documentation.builders.PathSelectors.regex;
 
 /**
- * Main class
+ * Main SpringBoot application.
+ * Port settings src/main/resources/application.properties
  */
 @SpringBootApplication
 @EnableSwagger2
 public class SpringBoot  extends  WebMvcConfigurerAdapter{
 
+    /**
+     * Initialize the in-memory storage and pasring the command line
+     * parameters to variables.
+     * @param args
+     */
     public static void main(String[] args) {
 
         // Memory Storage
@@ -59,17 +65,27 @@ public class SpringBoot  extends  WebMvcConfigurerAdapter{
             System.exit(0);
         }
 
+        // init global accessible storage instance.
         sm.init(twitterDir, outDir, edgesFile, dw_walkLength, dw_windowSize, pv_windowSize);
 
         SpringApplication.run(SpringBoot.class, args);
     }
 
+    /**
+     * Additional resource handler. This is used to provide the deepwalk and paragraphvectors
+     * embeddings inside the output/csv folder over http.
+     * @param registry
+     */
     @Override
     public void addResourceHandlers (ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/vectors/**").
                 addResourceLocations("file:"+SingeltonMemory.getInstance().outDir+"csv/");
     }
 
+    /**
+     * Description and information what is represented in the api.
+     * @return bean for api documentation.
+     */
     @Bean
     public Docket newsApi() {
         return new Docket(DocumentationType.SWAGGER_2)
@@ -81,7 +97,7 @@ public class SpringBoot  extends  WebMvcConfigurerAdapter{
 
     /**
      * Information about provided ReST api.
-     * @return
+     * @return api information
      */
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder().title("Twitter Graph DeepLearning").

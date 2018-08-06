@@ -20,12 +20,18 @@ import java.net.URLDecoder;
 import java.util.*;
 
 /**
- * Rest controller for PV
+ * Rest controller for ParagraphVectors
  */
 @RestController
 @RequestMapping("/paragraphVectors")
 public class PVController {
 
+    /**
+     * Nearest nodes, internal DL4J function.
+     * @param label node label
+     * @param k number of similar nodes
+     * @return
+     */
     @CrossOrigin
     @ApiOperation(value = "Top K Request Nearest", notes = "TopK with internal nearest method")
     @RequestMapping(value = "topKnearest", method = RequestMethod.GET, produces = "application/json")
@@ -50,6 +56,11 @@ public class PVController {
         return ret.toJSONString();
     }
 
+    /**
+     * Return for a list of nodes their associated features.
+     * @param label ; separated list of labels
+     * @return json object with feats
+     */
     @CrossOrigin
     @ApiOperation(value = "Feats Request", notes = "Multiple status values can be provided with semicolon seperated labels ")
     @RequestMapping(value = "getFeats", method = RequestMethod.GET, produces = "application/json")
@@ -84,6 +95,12 @@ public class PVController {
         return ret.toJSONString();
     }
 
+    /**
+     * Top K Request for ParagraphVectors based on cosine similarity.
+     * @param label
+     * @param k
+     * @return top k nodes
+     */
     @CrossOrigin
     @ApiOperation(value = "Top K Request", notes = "Get top K users based on a user label")
     @RequestMapping(value = "topK", method = RequestMethod.GET, produces = "application/json")
@@ -129,6 +146,12 @@ public class PVController {
         return ret.toJSONString();
     }
 
+    /**
+     * Cosine similarity between two nodes.
+     * @param nodeA label node A
+     * @param nodeB lable node B
+     * @return json with cosine similarity
+     */
     @CrossOrigin
     @ApiOperation(value = "Cosine Similarity", notes = "Cosine Similarity for nodeA and nodeB")
     @RequestMapping(value = "compare", method = RequestMethod.GET, produces = "application/json")

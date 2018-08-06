@@ -8,7 +8,11 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Custom iterator for reading documents for ParagraphVector
+ */
 public class CustomLabelAwareFileSentenceIterator extends FileSentenceIterator implements LabelAwareSentenceIterator {
+
     /**
      * Takes a single file or directory
      * Label equals filename
@@ -20,15 +24,27 @@ public class CustomLabelAwareFileSentenceIterator extends FileSentenceIterator i
         super(preProcessor, file);
     }
 
+    /**
+     * Constructor
+     * @param dir
+     */
     public CustomLabelAwareFileSentenceIterator(File dir) {
         super(dir);
     }
 
+    /**
+     * Return label of sentence collection in this case name of the current file
+     * @return the current label
+     */
     @Override
     public String currentLabel() {
         return currentFile.getName();
     }
 
+    /**
+     * Return list of labels.
+     * @return list of current labels
+     */
     @Override
     public List<String> currentLabels() {
         return Arrays.asList(currentFile.getName());

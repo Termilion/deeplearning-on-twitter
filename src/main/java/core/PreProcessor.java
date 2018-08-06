@@ -16,7 +16,15 @@ public class PreProcessor {
     Map<String, Integer> labelToIdMap = new HashMap<>();
     Map<String, Set<String>> combinedReducedFeatsMap = new HashMap();
 
+    /**
+     * Preprocess twitter input data.
+     * Creates "combined_vertices" and "features/*" files
+     * @param in directory to read the twitter data
+     * @param out directory to persist the preprocessed files
+     * @param edges edges file of the twitter graph
+     */
     public PreProcessor(String in, String out, File edges) {
+        // skip if already preprocessed
         if( !new File(out+"features/").exists()) {
             log.info("pre processing data");
             File inFolder = new File(in);
@@ -33,11 +41,13 @@ public class PreProcessor {
                 System.err.println("Was not able to create directories: " + featDir);
             }
 
+            // collect features for all nodes
             for (String egofeatFile : egofeatFiles) {
 
                 String ego = egofeatFile.substring(0, egofeatFile.indexOf("."));
                 log.info("doing egofeat " + ego);
 
+                // id (position) to feature list
                 List<String> featnames = new ArrayList<>();
                 try (BufferedReader br = new BufferedReader(new FileReader(in + ego + ".featnames"))) {
                     String line;
@@ -49,7 +59,7 @@ public class PreProcessor {
                 }
                 log.info("loaded featnames for " + ego);
 
-                // egofeat file
+                // collect features of a node from .egofeat
                 List<String> reducedEgoFeats = new ArrayList<>();
                 try (BufferedReader br = new BufferedReader(new FileReader(in + ego + ".egofeat"))) {
                     String line;
@@ -71,7 +81,7 @@ public class PreProcessor {
                     e.printStackTrace();
                 }
 
-                // feat file
+                // collect features of a node from .feat
                 try (BufferedReader br = new BufferedReader(new FileReader(in + ego + ".feat"))) {
                     String line;
                     while ((line = br.readLine()) != null) {
@@ -169,7 +179,7 @@ public class PreProcessor {
 
     /**
      * Getter vertices list
-     * @return verticesList
+     * @return list of all vertices
      */
     public List<Vertex<String>> getVertices() {
         return verticesList;
@@ -177,7 +187,7 @@ public class PreProcessor {
 
     /**
      * Getter Map containing label -> id
-     * @return labelToId
+     * @return map from label to internal id
      */
     public Map<String,Integer> getLabelToIdMap() {
         return labelToIdMap;

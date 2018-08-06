@@ -16,6 +16,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.logging.Logger;
 
+/**
+ * Class serves and handles command line interface.
+ */
 public class Cli{
 
         private static Options options = new Options();
@@ -51,7 +54,12 @@ public class Cli{
                     "show this help");
         }
 
-        public static CommandLine getCommandLine(String[] args) {
+    /**
+     * Parse program arguments to a command line object.
+     * @param args
+     * @return CommandLine
+     */
+    public static CommandLine getCommandLine(String[] args) {
             CommandLineParser clp = new DefaultParser();
             CommandLine cl = null;
             try {
@@ -62,7 +70,10 @@ public class Cli{
             return cl;
         }
 
-        public static void printHelp() {
+    /**
+     * Prints command line usage.
+     */
+    public static void printHelp() {
             HelpFormatter formatter = new HelpFormatter();
             formatter.printHelp("DeepWalk4J", options, true);
             System.exit(0);

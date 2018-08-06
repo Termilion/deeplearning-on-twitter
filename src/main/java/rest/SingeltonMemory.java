@@ -23,7 +23,9 @@ import java.util.*;
 import java.util.logging.Logger;
 
 /**
- * In memory storage for loaded ParagraphVectors and DeepWalk
+ * In memory storage for ParagraphVectors and DeepWalk and global variables.
+ * Is used to hold some java instances in memory for faster api access.
+ * TODO better use getter functions instead of public access.
  */
 public class SingeltonMemory {
 
@@ -32,17 +34,19 @@ public class SingeltonMemory {
     private Graph<String, String> graph;
     private ParagraphVectors paraVec;
     private GraphVectors deepWalk;
-    Map<String, Integer> labelToIdMap;
-    Map<Integer, String> idToLabelMap;
 
+    public Map<String, Integer> labelToIdMap;
+    public Map<Integer, String> idToLabelMap;
+
+    // DeepWalk parameters
     private int dw_vectorSize = 3;
     private int pv_layerSize = 3;
     public int dw_walkLength;
+
     public int dw_windowSize;
     public int pv_windowSize;
 
-    String outDir;
-
+    public String outDir;
 
     private static SingeltonMemory instance;
     private SingeltonMemory () {}
@@ -55,7 +59,8 @@ public class SingeltonMemory {
 
 
     /**
-     * In-Memory store init
+     * In-Memory storage initialisation.
+     * Creates the
      */
     public void init(String twitterDir, String outDir, File edgesFile, int dw_walkLengthInit, int dw_windowSizeInit, int pv_windowSizeInit) {
 
@@ -177,14 +182,26 @@ public class SingeltonMemory {
 
     }
 
+    /**
+     * Getter Graph
+     * @return initialized twitter graph
+     */
     public Graph<String,String> getGraph() {
         return graph;
     }
 
+    /**
+     * Getter ParagraphVectors
+     * @return ParagraphVectors instance
+     */
     public ParagraphVectors getParaVec() {
         return paraVec;
     }
 
+    /**
+     * Getter DeepWalk
+     * @return DeepWalk instance
+     */
     public GraphVectors getDeepWalk() {
         return deepWalk;
     }

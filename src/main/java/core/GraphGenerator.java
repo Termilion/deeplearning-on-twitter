@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 /**
- * Generates a graph by given edges (File), vertices (List), and labelToIdMap (Map)
+ * Generates a graph by given edges (File), vertices (List), and labelToIdMap (Map).
  */
 public class GraphGenerator {
 
@@ -19,9 +19,9 @@ public class GraphGenerator {
 
     /**
      * load Twitter graph
-     * @param edges
-     * @param vertices
-     * @param labelToIdMap
+     * @param edges file containing the edges
+     * @param vertices list of vertices
+     * @param labelToIdMap mapping from a input label to the internal used id
      */
     public GraphGenerator(File edges, List<Vertex<String>> vertices, Map<String,Integer> labelToIdMap) {
         log.info("loading graph");
@@ -52,8 +52,8 @@ public class GraphGenerator {
     }
 
     /**
-     * Getter initialized graph
-     * @return Graph
+     * Getter for the initialized graph
+     * @return initialized graph
      */
     public Graph<String,String> getGraph() {
         return graph;

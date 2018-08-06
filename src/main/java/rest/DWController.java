@@ -17,12 +17,18 @@ import java.util.*;
 
 
 /**
- * Rest Controller for DW
+ * Rest Controller for DeepWalk embedding based operations.
  */
 @RestController
 @RequestMapping("/deepWalk")
 public class DWController {
 
+    /**
+     * Provides the top k similar nodes for a given node label.
+     * @param label node label
+     * @param k number how many similar nodes
+     * @return json serialized object
+     */
     @CrossOrigin
     @ApiOperation(value = "Top K Request", notes = "Get top K users based on a user label")
     @RequestMapping(value = "topK", method = RequestMethod.GET, produces = "application/json")
@@ -62,10 +68,13 @@ public class DWController {
         return ret.toJSONString();
     }
 
-
-
+    /**
+     * Get json with all direct follows
+     * @param label ; separated list of labels
+     * @return json
+     */
     @CrossOrigin
-    @ApiOperation(notes = "Multiple status values can be provided with semicolon seperated labels ", value = "Friends Request")
+    @ApiOperation(notes = "Multiple status values can be provided with semicolon separated labels ", value = "Friends Request")
     @RequestMapping(value = "getFriends", method = RequestMethod.GET, produces = "application/json")
     public String getFriends(
             @ApiParam(defaultValue = "12831;761") @RequestParam(value="label",required=true)String label
@@ -92,6 +101,12 @@ public class DWController {
         return ret.toJSONString();
     }
 
+    /**
+     * Nearest nodes, internal DL4J function.
+     * @param label node label
+     * @param k number
+     * @return json
+     */
     @CrossOrigin
     @ApiOperation(value = "Top K Request Nearest", notes = "TopK with internal nearest method")
     @RequestMapping(value = "topKnearest", method = RequestMethod.GET, produces = "application/json")
@@ -103,6 +118,12 @@ public class DWController {
         return "disabled" ;
     }
 
+    /**
+     * Compute cosine similarity between two nodes.
+     * @param nodeA label of nodeA
+     * @param nodeB label of nodeB
+     * @return json
+     */
     @CrossOrigin
     @ApiOperation(value = "Cosine Similarity", notes = "Cosine Similarity for nodeA and nodeB")
     @RequestMapping(value = "compare", method = RequestMethod.GET, produces = "application/json")
